@@ -1,4 +1,4 @@
-# static-code-analysis
+# Static code analysis
 
 Projeto desenvolvido no âmbito da UC de __Gestão de Processo de Software__.
 
