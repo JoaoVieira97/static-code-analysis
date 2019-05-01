@@ -73,3 +73,8 @@ def testAll():
 
 readAll()
 testAll()
+
+# To test this script use : 
+#   py script2.py TablesContextFile ModelsPath RepositorysPath ControllersPath
+#   example:
+#     py script2.py  F3MESR3S1Context.cs './Models' './Reps' './Controllers'
