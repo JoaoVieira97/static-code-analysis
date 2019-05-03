@@ -4,6 +4,8 @@ import fileinput
 import re
 import sys
 import os
+from colorama import init
+init()
 
 # readable info
 tables = []
@@ -96,7 +98,12 @@ readAll()
 testAll()
 
 # To use this script use :
-#  $ chmod +x script2.py
-#  $ ./script2.py TablesContextFile ModelsPath RepositorysPath ControllersPath
-#     example:
-#     $ ./script2.py F3MESR3S1Context.cs Models Reps Controllers
+#  on linux:
+#   $ chmod +x script2.py
+#   $ ./script2.py TablesContextFile ModelsPath RepositorysPath ControllersPath
+#      example:
+#      $ ./script2.py F3MESR3S1Context.cs Models Reps Controllers
+#  on windows:
+#   $ python ./script2.py TablesContextFile ModelsPath RepositorysPath ControllersPath
+#      example:
+#      $ python ./script2.py F3MESR3S1Context.cs Models Reps Controllers
