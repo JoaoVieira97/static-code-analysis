@@ -92,9 +92,9 @@ def testFile(file):
 
         print('\033[1m' + '---> TABLE NAME RULES:' + '\033[0m')
         if (tableName_rule):
-            print('\033[92m\033[1m' + u'\u2714' + '\033[0m ' + '\033[4m' + table + '\033[0m matches the rule!')
+            print('\033[92m\033[1m' + u'\u2714' + '\033[0m ' + ' \033[4m' + table + '\033[0m matches the rule!')
         else:
-            print('\033[91m\033[1m' + u'\u274C' + '\033[0m ' + '\033[4m' + table + '\033[0m doesn\'t match the rule!')
+            print('\033[91m\033[1m' + u'\u274C' + '\033[0m ' + ' \033[4m' + table + '\033[0m doesn\'t match the rule!')
 
         print('\033[1m' + '\n---> REQUIRED FIELDS:' + '\033[0m')
         for field in required_fields:
@@ -138,9 +138,11 @@ def cleanData():
 files = readFilesFromPath(sys.argv[1])
 nfiles = len(files)
 nTested = 0
-print('\033[1m' + '\n--------------------> ' + str(nfiles) + ' FILES TO TEST:' + '\033[0m')
-while nTested<nfiles :
-    print('\033[34m' + '\n-----------> ' + files[nTested] + ' :' + '\033[0m\n')
+
+print('\033[1m' + '\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------' + '\033[0m')
+
+while (nTested < nfiles):
+    print('\033[34m' + '\033[1m' + '\n-------> ' + '\033[0m' + '\033[34m' + '\033[1m' + '\033[4m' + files[nTested] + '\033[0m' + '\033[34m' + '\033[1m' + ' <-------' + '\033[0m\n')
     cleanData()
     testFile(sys.argv[1] + "/"+ files[nTested])
     nTested+=1
