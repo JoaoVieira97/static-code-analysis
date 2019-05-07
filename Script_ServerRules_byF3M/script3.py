@@ -8,6 +8,17 @@ from colorama import init
 init()
 
 # defined data
+begin_of_parameter = 'in'
+variables = {
+    r'^int$': r'^int',
+    r'^string$': r'^str',
+    r'^bool$': r'^bln',
+    r'^DateTime$': r'^dt',
+    r'^long$': r'^lng',
+    r'^List<[^\>]+>$': r'^lst',
+    r'^Dictionary<[^\,]+,[^\>]+>$': r'^dic',
+    r'^[A-Za-z0-9\_]+\[\]$': r'^arr'
+}
 
 # code data
 in_comment = 0
@@ -15,62 +26,75 @@ in_function = 0
 functions_documentation = {}
 input_results = {}
 functions_variables = {}
+
 def readFilesFromPath(path):
   files = []
-  files = (os.listdir(path))
+  files = os.listdir(path)
   return files
 
-def testFile(path,file):
-   global in_comment,in_function
-   class_name =  file[:len(file)-3]
+def testFile(path, file):
+   global in_comment
+   global in_function
+
+   class_name = file[:len(file)-3]
+   
    for line in fileinput.input(path):
-        function_in_line = re.match('\s*(public|private)\s*[a-zA-Z](?!lass)(?!'+ class_name[1:] +').*\(.*\)', line)
+
+        #function_in_line = re.match(r'\s*(public|private)\s*[a-zA-Z](?!lass)(?!' + class_name[1:] + r').*\(.*\)', line)
+        function_in_line = re.match(r'\s*(public|private)\s+(async\s+)?(void|[A-Za-z][A-Za-z0-9\<\>\_?\[\]]*)\s+[A-Z][A-Za-z0-9\_]*\s*\(.*\)', line)
+        
+        # detect init of function
         if function_in_line:
             in_function = 1
-            func = function_in_line.group()
-            input_results.setdefault( func,[])
-            functions_variables.setdefault( func,[])
+            func = re.sub(r'^\s*', r'', function_in_line.group())
+            input_results[func] = []
+            functions_variables[func] = []
             if (in_comment != 8) :
-                functions_documentation.setdefault(func,0)
+                functions_documentation[func] = 0
             else:
-                functions_documentation.setdefault(func,1)
+                functions_documentation[func] = 1
                 in_comment = 0
-            ##Testing input names
-            params_search = re.search('\(.+\)',func)
+    
+            # Input names must begin by "in"
+            params_search = re.search(r'\(.+\)', func)
             if (params_search):
-                params = params_search.group().split(",")
-                i=0
-                while(i<len(params)) :
-                    params[i] = params[i].replace("(",'').replace(")",'')
-                    split_by_space =  re.split("(\s+)",params[i] )
-                    input_to_test = split_by_space[len(split_by_space)-1]
-                    tested = re.search('^in.*',input_to_test)
-                    if not tested :
-                        input_results.get(func).append(params[i])
-                    i+=1
-        elif in_function == 1:
-            if ("}" in line and in_comment == 0) : # end of function ????
-                in_function = 0
-            ##Testing variables names
-            variable_test = re.search('(public|private)\s*[^\s]+\s+[A-Za-z]+[^=;\s]*', line)
-            if (variable_test):
-                    split_text = re.split("(\s+)" ,variable_test.group())
-                    t_int = re.search('^int.*',split_text[2]) and re.search('^int.*',split_text[4])
-                    t_str = re.search('^string.*',split_text[2]) and re.search('^str.*',split_text[4])
-                    t_bln = re.search('^bool.*',split_text[2]) and re.search('^bln.*',split_text[4])
-                    t_dt = re.search('^DateTime.*',split_text[2]) and re.search('^dt.*',split_text[4])
-                    t_lng = re.search('^long.*',split_text[2]) and re.search('^lng.*',split_text[4])
-                    t_lst = re.search('^List.*',split_text[2]) and re.search('^lst.*',split_text[4])
-                    t_dic = re.search('^Dictionary.*',split_text[2]) and re.search('^dic.*',split_text[4])
-                    t_arr = re.search('^int\[\].*',split_text[2]) and re.search('^arr.*',split_text[4])
-                    if(t_int or t_str or t_bln or t_dt or t_lng or t_lst or t_dic or t_arr):
-                        split_text.append(1)
-                    else:
-                        split_text.append(0)
-                    functions_variables.setdefault(func, functions_variables.get(func).append(split_text) )
+                params = params_search.group().split(',')
+                i = 0
 
-        ## Testing comments        
-        elif in_function == 0 and in_comment!=8:
+                while(i < len(params)) :
+                    params[i] = params[i].replace(r'(','').replace(r')','')
+                    split_by_space = re.split(r'\s+', params[i])
+                    input_to_test = split_by_space[-1]
+                    tested = (input_to_test[:2] == begin_of_parameter)
+                    if not tested :
+                        input_results[func].append(input_to_test)
+                    i+=1
+
+        # detect it is inside function
+        elif in_function == 1:
+            
+            if ("}" in line and in_comment == 0) : # end of function -> TODO
+                in_function = 0
+            
+            #Testing variables names
+
+            #variable_test = re.search(r'(public|private)\s*[^\s]+\s+[A-Za-z]+[^=;\s]*', line)
+            variable_test = re.search(r'(?:public|private)?\s*([A-Za-z0-9\[\]\_\<\>,]+)\s+([A-Za-z0-9\_.]+)(?:\s*=[^;]+)?\s*;', line)
+            if (variable_test):
+                print(variable_test.groups())
+                type = variable_test.groups()[0]
+                name = variable_test.groups()[1]
+                split_text = [type, name]
+                for variable in variables:
+                    if re.match(variable, type):
+                        if re.match(variables[variable], name):
+                            split_text.append(1)
+                        else:
+                            split_text.append(0)
+                functions_variables[func].append(split_text)
+
+        # Comments testing        
+        elif in_function == 0 and in_comment != 8:
             if ("///" not in line):
                 in_comment = 0
             else :
@@ -104,67 +128,67 @@ def testFile(path,file):
                         in_comment +=1
                     else : in_comment = 0 # bad comment
 
-
 def cleanData():
     in_comment = 0
     in_function = 0
     functions_documentation.clear()
     input_results.clear()
     functions_variables.clear()
+
 def printResults ():
     flag =0
+    
     for key in input_results.keys():
         if (str(input_results.get(key))!='[]') :
-            if (flag==0) : print("\033[31m------>Inputs from Functions without in:\033[37m")
+            if (flag == 0):
+                print('\033[1m' + '---> FUNCTIONS INPUT\'S:' + '\033[0m\n')
             flag+=1
-            print("\033[31m--->Function\033[37m"+ key +  " :")
+            print("-> Function \033[4m" + key +  "\033[0m:")
             for inp in input_results.get(key)  :
-                print("Missing 'in' in the input parameter \033[31m"+ inp+ " !!!\033[37m")
+                print('\033[91m\033[1m' + u'\u274C' + '\033[0m  ' + "Missing 'in' in the input parameter \033[93m" + inp + "\033[0m")
+    
     if (functions_documentation!={}):
-        print("\033[31m------>Well Specificed documentacion of functions:\033[37m")
+        print('\033[1m' + '\n---> FUNCTIONS DOCUMENTATION:' + '\033[0m\n')
         for key in functions_documentation.keys():
             x = ""
             if (functions_documentation.get(key)==0):
-                x = u'\u274C'
+                x = '\033[91m\033[1m' + u'\u274C' + '\033[0m ' + ' '
             else:
-                x = u'\u2714'
+                x = '\033[92m\033[1m' + u'\u2714' + '\033[0m ' + ' '
             print(x + key)
+    
     if (functions_variables!={}):
-        print("\033[31m------>Variables Names according to rules:\033[37m")
+        print(functions_variables)
+        print('\033[1m' + '\n---> VARIABLES NAME RULE:' + '\033[0m\n')
         for key in functions_variables.keys():
             if (functions_variables.get(key)!=[]):
-                print("\033[31m--->Function\033[37m"+ key +  " :")
+                print("-> Function \033[4m" + key +  "\033[0m:")
                 for variable in functions_variables.get(key):
                     x = ""
-                    if (variable[5]==0):
-                        x = u'\u274C'
+                    if (variable[2]==0):
+                        x = '\033[91m\033[1m' + u'\u274C' + '\033[0m ' + ' '
                     else:
-                        x = u'\u2714'
-                    print(x +  "     " + variable[0] + " " + variable[2] + " " + variable[4])
-
-
-        
-        
-
+                        x = '\033[92m\033[1m' + u'\u2714' + '\033[0m ' + ' '
+                    print(x + variable[0] + ' ' + variable[1] )
 
 files = readFilesFromPath(sys.argv[1])
 nfiles = len(files)
 nTested = 0
-print('\033[1m' + '\n--------------------> ' + str(nfiles) + ' FILES TO TEST:' + '\033[0m')
+print('\033[1m' + '\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------' + '\033[0m')
 while nTested<nfiles :
-    print('\033[34m' + '\n-----------> ' + files[nTested] + ' :' + '\033[0m\n')
+    print('\033[34m' + '\033[1m' + '\n-------> ' + '\033[0m' + '\033[34m' + '\033[1m' + '\033[4m' + files[nTested] + '\033[0m' + '\033[34m' + '\033[1m' + ' <-------' + '\033[0m\n')
     testFile(sys.argv[1] + "/"+ files[nTested],files[nTested])
     printResults()
     cleanData()
     nTested+=1
 
 # To use this script use :
-#  on linux:
-#   $ chmod +x script1.py
-#   $ ./script1.py PathToFiles
+#  on Linux:
+#   $ chmod +x script3.py
+#   $ ./script3.py PathToFiles
 #      example:
-#      $ ./script1.py Files
-#  on windows:
-#   $ python ./script1.py PathToFiles
+#      $ ./script3.py Files
+#  on Windows:
+#   $ python ./script3.py PathToFiles
 #      example:
-#      $ python ./script1.py Files
+#      $ python ./script3.py Files

@@ -94,6 +94,8 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
 
             private int[] arrnames ;
             private       int     nameNoint ;
+
+            bool verdadeiro = true;
         }
     }
 }

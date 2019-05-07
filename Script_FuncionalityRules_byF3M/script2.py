@@ -98,12 +98,12 @@ readAll()
 testAll()
 
 # To use this script use :
-#  on linux:
+#  on Linux:
 #   $ chmod +x script2.py
 #   $ ./script2.py TablesContextFile ModelsPath RepositorysPath ControllersPath
 #      example:
 #      $ ./script2.py F3MESR3S1Context.cs Models Reps Controllers
-#  on windows:
+#  on Windows:
 #   $ python ./script2.py TablesContextFile ModelsPath RepositorysPath ControllersPath
 #      example:
 #      $ python ./script2.py F3MESR3S1Context.cs Models Reps Controllers

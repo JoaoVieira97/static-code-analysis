@@ -76,7 +76,7 @@ def testFile(file):
                     foreignKeys_wrong.append(fk)
 
             # properties size
-            property = re.match(r'\s*(private|public|protected|internal|protected internal|private protected)(\s*(virtual|override))?\s*[A-Za-z\<\>?\[\]]+\s*(\w+)\s*\{\s*get\s*;\s*set\s*;\s*\}\s*', line)
+            property = re.match(r'\s*(private|public|protected|internal|protected internal|private protected)(\s+(virtual|override))?\s+[A-Za-z\<\>?\[\]]+\s+(\w+)\s*\{\s*get\s*;\s*set\s*;\s*\}\s*', line)
             
             if (property):
                 prop_n += 1
@@ -148,12 +148,12 @@ while (nTested < nfiles):
     nTested+=1
 
 # To use this script use :
-#  on linux:
+#  on Linux:
 #   $ chmod +x script1.py
 #   $ ./script1.py PathToFiles
 #      example:
 #      $ ./script1.py Tables
-#  on windows:
+#  on Windows:
 #   $ python ./script1.py PathToFiles
 #      example:
 #      $ python ./script1.py Tables
