@@ -35,17 +35,18 @@ def readFilesFromPath(path):
 def testFile(path, file):
    global in_comment
    global in_function
-
+   in_key = 0 # for testing '{' '}' 
    class_name = file[:len(file)-3]
    
    for line in fileinput.input(path):
 
         #function_in_line = re.match(r'\s*(public|private)\s*[a-zA-Z](?!lass)(?!' + class_name[1:] + r').*\(.*\)', line)
         function_in_line = re.match(r'\s*(public|private)\s+(async\s+)?(void|[A-Za-z][A-Za-z0-9\<\>\_?\[\]]*)\s+[A-Z][A-Za-z0-9\_]*\s*\(.*\)', line)
-        
         # detect init of function
         if function_in_line:
             in_function = 1
+            in_key+=line.count('{')
+            in_key-=line.count('}')
             func = re.sub(r'^\s*', r'', function_in_line.group())
             input_results[func] = []
             functions_variables[func] = []
@@ -72,16 +73,18 @@ def testFile(path, file):
 
         # detect it is inside function
         elif in_function == 1:
+            in_key+=line.count('{')
+            in_key-=line.count('}')
             
-            if ("}" in line and in_comment == 0) : # end of function -> TODO
+            if ("}" in line and in_comment == 0 and in_key<=0) : # end of function -> TODO
                 in_function = 0
             
             #Testing variables names
 
             #variable_test = re.search(r'(public|private)\s*[^\s]+\s+[A-Za-z]+[^=;\s]*', line)
-            variable_test = re.search(r'(?:public|private)?\s*([A-Za-z0-9\[\]\_\<\>,]+)\s+([A-Za-z0-9\_.]+)(?:\s*=[^;]+)?\s*;', line)
+            variable_test = re.search(r'([A-Za-z0-9\[\]\_\<\>,?]+)\s+([A-Za-z0-9\_.]+)\s*=[^;]+\s*;', line)
             if (variable_test):
-                print(variable_test.groups())
+             #   print(variable_test.groups())
                 type = variable_test.groups()[0]
                 name = variable_test.groups()[1]
                 split_text = [type, name]
@@ -128,6 +131,11 @@ def testFile(path, file):
                         in_comment +=1
                     else : in_comment = 0 # bad comment
 
+
+def testComments(path):
+    for line in fileinput.input(path):
+        x=0
+
 def cleanData():
     in_comment = 0
     in_function = 0
@@ -158,7 +166,6 @@ def printResults ():
             print(x + key)
     
     if (functions_variables!={}):
-        print(functions_variables)
         print('\033[1m' + '\n---> VARIABLES NAME RULE:' + '\033[0m\n')
         for key in functions_variables.keys():
             if (functions_variables.get(key)!=[]):

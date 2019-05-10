@@ -74,12 +74,12 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
         public void Put(int id, [FromBody] string value)
         {
 
-            public string strNome;
-             public bool blnDisponivel;
-             public DateTime dtFinal;
-             private long lnngNIF;
+            public string strNome = 0;
+             public bool blnDisponivel = 0;
+             public DateTime dtFinal = 0;
+             private long lnngNIF = 0;
 
-             private List<int> lstNumeros;
+             private List<int> lstNumeros = 0;
 
 
 
@@ -89,11 +89,11 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
         [HttpDelete("{id}")]
         public void Delete(int inid)
         {
-            public Dictionary<int,Cliente> dicclientes;
-            private int intname ;
+            public Dictionary<int,Cliente> dicclientes = 0;
+            private int intname = 0 ;
 
-            private int[] arrnames ;
-            private       int     nameNoint ;
+            private int[] arrnames = 0 ;
+            private       int     nameNoint = 0 ;
 
             bool verdadeiro = true;
         }
