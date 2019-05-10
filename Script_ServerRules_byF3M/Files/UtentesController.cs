@@ -37,16 +37,16 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
 
         // GET api/utentes/5
         /// <summary>
-        /// Descri¸c~ao da funcionalidade do m´etodo.
+        /// Descrição da funcionalidade do método.
         /// </summary>
-        /// <param name="Param1">Descri¸c~ao do par^ametro 1</param>
-        /// <param name="Param2">Descri¸c~ao do par^ametro 2</param>
+        /// <param name="Param1">Descrição do parâmetro 1</param>
+        /// <param name="Param2">Descrição do parâmetro 2</param>
         /// <returns>
-        /// Descri¸c~ao do valor a "devolver".
+        /// Descrição do valor a "devolver".
         /// </returns>
         /// <example>
         /// <code>
-        /// Exemplo de utiliza¸c~ao do m´etodo.
+        /// Exemplo de utilização do método.
         /// </code>
         /// </example>
         [HttpGet("{id}")]
@@ -59,7 +59,6 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
         [HttpGet("quarto/{id}")]
         public async Task<List<object>> GetByQuarto(int inid)
         {
-
             return await _UtentesRepository.GetByQuarto(_UtentesRepository, _EntidadesRegistadasRepository, _EntidadesRepository, _IRADCabecalhoRepository, id);
         }
 
