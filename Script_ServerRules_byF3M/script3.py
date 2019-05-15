@@ -5,6 +5,7 @@ import sys
 import re
 import os
 from colorama import init
+import numpy as np 
 init()
 
 # defined data
@@ -26,6 +27,10 @@ in_function = 0
 functions_documentation = {}
 input_results = {}
 functions_variables = {}
+documentation = ""
+d_params = []
+d_ok = False
+d_params_wrong = {}
 
 def readFilesFromPath(path):
   files = []
@@ -35,13 +40,19 @@ def readFilesFromPath(path):
 def testFile(path, file):
    global in_comment
    global in_function
+   global documentation
+   global d_params
+   global d_ok
+   global d_params_wrong
    in_key = 0 # for testing '{' '}' 
    class_name = file[:len(file)-3]
    
    for line in fileinput.input(path):
 
-        #function_in_line = re.match(r'\s*(public|private)\s*[a-zA-Z](?!lass)(?!' + class_name[1:] + r').*\(.*\)', line)
         function_in_line = re.match(r'\s*(public|private)\s+(async\s+)?(void|[A-Za-z][A-Za-z0-9\<\>\_?\[\]]*)\s+[A-Z][A-Za-z0-9\_]*\s*\(.*\)', line)
+
+        is_comment = re.match(r'\s*///\s*(.*)\s*', line)
+
         # detect init of function
         if function_in_line:
             in_function = 1
@@ -50,12 +61,7 @@ def testFile(path, file):
             func = re.sub(r'^\s*', r'', function_in_line.group())
             input_results[func] = []
             functions_variables[func] = []
-            if (in_comment != 8) :
-                functions_documentation[func] = 0
-            else:
-                functions_documentation[func] = 1
-                in_comment = 0
-    
+
             # Input names must begin by "in"
             params_search = re.search(r'\(.+\)', func)
             if (params_search):
@@ -66,25 +72,48 @@ def testFile(path, file):
                     params[i] = params[i].replace(r'(','').replace(r')','')
                     split_by_space = re.split(r'\s+', params[i])
                     input_to_test = split_by_space[-1]
+                    params[i] = input_to_test
                     tested = (input_to_test[:2] == begin_of_parameter)
                     if not tested :
                         input_results[func].append(input_to_test)
                     i+=1
 
+                if (documentation != ""):
+                    # has documentation
+                    if (not d_ok):
+                        # documentation is not ok
+                        functions_documentation[func] = -1
+                    else:
+                        # test parameters
+                        equals = np.array_equal(params, d_params)
+                        if (equals):
+                            # params are ok
+                            functions_documentation[func] = 1
+                        else:
+                            # params are wrong
+                            functions_documentation[func] = 0
+                            d_params_wrong[func] = (params, d_params)
+
+                else:
+                    # no documentation
+                    functions_documentation[func] = -2
+    
+                documentation = ""
+                d_params = []
+
         # detect it is inside function
         elif in_function == 1:
-            in_key+=line.count('{')
-            in_key-=line.count('}')
+            in_key += line.count('{')
+            in_key -= line.count('}')
             
-            if ("}" in line and in_comment == 0 and in_key<=0) : # end of function -> TODO
+            if ("}" in line and in_comment == 0 and in_key <= 0):
                 in_function = 0
             
             #Testing variables names
 
-            #variable_test = re.search(r'(public|private)\s*[^\s]+\s+[A-Za-z]+[^=;\s]*', line)
             variable_test = re.search(r'([A-Za-z0-9\[\]\_\<\>,?]+)\s+([A-Za-z0-9\_.]+)\s*=[^;]+\s*;', line)
             if (variable_test):
-             #   print(variable_test.groups())
+
                 type = variable_test.groups()[0]
                 name = variable_test.groups()[1]
                 split_text = [type, name]
@@ -97,44 +126,23 @@ def testFile(path, file):
                 functions_variables[func].append(split_text)
 
         # Comments testing        
-        elif in_function == 0 and in_comment != 8:
-            if ("///" not in line):
-                in_comment = 0
-            else :
-                if (in_comment == 0 ) : # begin of summary
-                    if ("<summary>" in line):
-                        in_comment+=1
-                elif (in_comment == 1): # end of summary
-                    if ("</summary>" in line):
-                        in_comment+=1
-                elif (in_comment == 2): 
-                    if ("<returns>" in line): # end of params, begin of returns
-                        in_comment +=1
-                    elif ("<param name=" not in line) : # param description or bad comment
-                        in_comment = 0
-                elif (in_comment == 3):
-                    if ("</returns>" in line): # end returns
-                        in_comment +=1
-                elif (in_comment == 4):
-                    if ("<example>" in line): # begin example
-                        in_comment +=1
-                    else : in_comment = 0 # bad comment
-                elif (in_comment==5):
-                    if ("<code>" in line): # begin code
-                        in_comment +=1
-                    else : in_comment = 0 # bad comment
-                elif (in_comment==6):
-                    if ("</code>" in line): # end code
-                        in_comment +=1
-                elif (in_comment == 7):
-                    if ("</example>" in line): # end example -> full documentated function, in_comment = 8
-                        in_comment +=1
-                    else : in_comment = 0 # bad comment
+        elif is_comment:
+            if (not in_comment):
+                in_comment = 1
+                documentation = ""
+            documentation = documentation + is_comment.groups()[0]
 
-
-def testComments(path):
-    for line in fileinput.input(path):
-        x=0
+        elif in_comment:
+            in_comment = 0
+            correct_documentation = re.match(r'<summary>[^<]+</summary>((?:<param name="[^\"]+">[^<]+</param>)*)<returns>[^<]+</returns><example><code>[^<]+</code></example>', documentation)
+            if (correct_documentation):
+                # documentation ok
+                d_ok = True
+                params = correct_documentation.groups()[0]
+                d_params = re.findall(r'<param name="([^\"]+)">[^<]+</param>', params)
+            else: 
+                # documentation not ok
+                d_ok = False
 
 def cleanData():
     in_comment = 0
@@ -142,33 +150,45 @@ def cleanData():
     functions_documentation.clear()
     input_results.clear()
     functions_variables.clear()
+    d_params.clear()
+    d_params_wrong.clear()
+    documentation = ""
+    d_params.clear()
 
 def printResults ():
-    flag =0
+    flag = 0
+    print(str(d_params_wrong))
     
     for key in input_results.keys():
-        if (str(input_results.get(key))!='[]') :
+        if (input_results[key]) :
             if (flag == 0):
                 print('\033[1m' + '---> FUNCTIONS INPUT\'S:' + '\033[0m\n')
-            flag+=1
-            print("-> Function \033[4m" + key +  "\033[0m:")
-            for inp in input_results.get(key)  :
+            flag += 1
+            print("-> Function \033[4m" + key + "\033[0m:")
+            for inp in input_results[key]:
                 print('\033[91m\033[1m' + u'\u274C' + '\033[0m  ' + "Missing 'in' in the input parameter \033[93m" + inp + "\033[0m")
     
-    if (functions_documentation!={}):
+    if (functions_documentation):
         print('\033[1m' + '\n---> FUNCTIONS DOCUMENTATION:' + '\033[0m\n')
-        for key in functions_documentation.keys():
-            x = ""
-            if (functions_documentation.get(key)==0):
-                x = '\033[91m\033[1m' + u'\u274C' + '\033[0m ' + ' '
+        bad = '\033[91m\033[1m' + u'\u274C' + '\033[0m ' + ' '
+        good = '\033[92m\033[1m' + u'\u2714' + '\033[0m ' + ' '
+        
+        for func in functions_documentation:
+            if (functions_documentation[func] == -2):
+                print(bad + func + ': no documentation')
+            elif (functions_documentation[func] == -1):
+                print(bad + func + ': Documentation is not correct')
+            elif (functions_documentation[func] == 0):
+                print(bad + func + ': Parameters of function are different from the documentation')
+                print('\tFunction params = ' + str(d_params_wrong[func][0]))
+                print('\tDocumentation params = ' + str(d_params_wrong[func][1]))
             else:
-                x = '\033[92m\033[1m' + u'\u2714' + '\033[0m ' + ' '
-            print(x + key)
+                print(good + func)
     
-    if (functions_variables!={}):
+    if (functions_variables):
         print('\033[1m' + '\n---> VARIABLES NAME RULE:' + '\033[0m\n')
-        for key in functions_variables.keys():
-            if (functions_variables.get(key)!=[]):
+        for key in functions_variables:
+            if (functions_variables[key]):
                 print("-> Function \033[4m" + key +  "\033[0m:")
                 for variable in functions_variables.get(key):
                     x = ""
