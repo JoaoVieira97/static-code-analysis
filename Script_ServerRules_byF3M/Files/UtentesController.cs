@@ -73,15 +73,19 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
         public void Put(int id, [FromBody] string value)
         {
 
-            public string strNome = 0;
+          " { axx{xx {xxx "    ' { asdsa'  "{das" '{dasd'
+ " } xx}asxxdasd }x "    ' } asdsa'  "}das" '}dasd'
+  " { adxxasd{asxdasd {d}axsd "    ' { asdsa'  "{da}s" '{dasd}'{}
+    
+             public string strNome = 0;
              public bool blnDisponivel = 0;
              public DateTime dtFinal = 0;
              private long lnngNIF = 0;
-
+        '}'
              private List<int> lstNumeros = 0;
-
-
-
+        
+        
+            
         }
 
         // DELETE api/values/5

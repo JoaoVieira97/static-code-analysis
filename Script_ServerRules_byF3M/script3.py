@@ -37,6 +37,20 @@ def readFilesFromPath(path):
   files = os.listdir(path)
   return files
 
+def regex_keys(in_key,line):
+        #    print('---------------')
+            in_key += line.count('{')
+            in_key -= line.count('}')
+            keys_instring_regex = re.findall('[\'\"]([^\'\"]*[{}][^\'\"]*)+[\'\"]', line)
+            if (keys_instring_regex):
+                for st in keys_instring_regex :
+                    in_key -= st.count('{')
+                    in_key += st.count('}')
+                    print(st)
+         #   print(in_key)
+          #  print(line)
+          #  print('---------------')
+            return in_key
 def testFile(path, file):
    global in_comment
    global in_function
@@ -56,8 +70,7 @@ def testFile(path, file):
         # detect init of function
         if function_in_line:
             in_function = 1
-            in_key+=line.count('{')
-            in_key-=line.count('}')
+            in_key = regex_keys(in_key,line)
             func = re.sub(r'^\s*', r'', function_in_line.group())
             input_results[func] = []
             functions_variables[func] = []
@@ -103,10 +116,8 @@ def testFile(path, file):
 
         # detect it is inside function
         elif in_function == 1:
-            in_key += line.count('{')
-            in_key -= line.count('}')
-            
-            if ("}" in line and in_comment == 0 and in_key <= 0):
+            in_key = regex_keys(in_key,line)
+            if ("}" in line and in_comment == 0 and in_key == 0):
                 in_function = 0
             
             #Testing variables names
@@ -157,7 +168,7 @@ def cleanData():
 
 def printResults ():
     flag = 0
-    print(str(d_params_wrong))
+  #  print(str(d_params_wrong))
     
     for key in input_results.keys():
         if (input_results[key]) :
