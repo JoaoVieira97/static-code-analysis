@@ -9,36 +9,52 @@ import numpy as np
 init()
 
 # defined data
-begin_of_parameter = 'in'
-variables = {
-    r'^int$': r'^int',
-    r'^string$': r'^str',
-    r'^bool$': r'^bln',
-    r'^DateTime$': r'^dt',
-    r'^long$': r'^lng',
-    r'^List<[^\>]+>$': r'^lst',
-    r'^Dictionary<[^\,]+,[^\>]+>$': r'^dic',
-    r'^[A-Za-z0-9\_]+\[\]$': r'^arr'
-}
+methods_in_class = 5
+lines_in_method = 10
+params_in_method = 4
+comments_in_method = 0.1 #percentage?
 
 # code data
-in_comment = 0
+
 in_function = 0
-functions_documentation = {}
-input_results = {}
-functions_variables = {}
-documentation = ""
-d_params = []
-d_ok = False
-d_params_wrong = {}
+classes = {} # class -> [method]
+methods = {} # method,class -> lines
+input_results = {} # method,class -> [inputs]
+comments = {} # method,class -> n_comments 
 
 def readFilesFromPath(path):
   files = []
   files = os.listdir(path)
   return files
 
+
+def CommentsCount (comments_count,line,comment):
+    regexA =  re.search('\/\*.*\*\/',line)     # /* ... */
+    regexB = re.search('\/\/.*', line)         # // ...
+    regexC = re.search('\/\*.*',line)          # /* ...
+    regexEndComment = re.search('.*\*\/',line) # ... */
+    if len(comment)==0:
+        if regexA:
+            comments_count = countCar(comments_count,regexA.group())
+        elif regexB:
+            comments_count = countCar(comments_count,regexB.group())
+        elif regexC:
+            comment+= regexC.group()
+    elif regexEndComment:
+        comment+= regexEndComment.group()
+        comments_count = countCar(comments_count,comment)
+        comment=""
+    else:
+        comment+= line
+    return comments_count,comment
+
+def countCar (car_count,line):
+    regex = re.findall('\S', line)
+    if regex:
+        car_count+= len(regex)
+    return car_count
+
 def regex_keys(in_key,line):
-        #    print('---------------')
             in_key += line.count('{')
             in_key -= line.count('}')
             keys_instring_regex = re.findall('[\'\"]([^\'\"]*[{}][^\'\"]*)+[\'\"]', line)
@@ -46,35 +62,37 @@ def regex_keys(in_key,line):
                 for st in keys_instring_regex :
                     in_key -= st.count('{')
                     in_key += st.count('}')
-                  #  print(st)
-         #   print(in_key)
-          #  print(line)
-          #  print('---------------')
             return in_key
 def testFile(path, file):
-   global in_comment
    global in_function
-   global documentation
-   global d_params
-   global d_ok
-   global d_params_wrong
+
    in_key = 0 # for testing '{' '}' 
-   class_name = file[:len(file)-3]
-   
+   lines = 0
+   car_count = 0
+   comments_count = 0
+   class_name = ""
+   comment = ""
    for line in fileinput.input(path):
 
+        class_in_line = re.match(r'\s*(public|private)\s+class+\s+(.+):', line)
         function_in_line = re.match(r'\s*(public|private)\s+(async\s+)?(void|[A-Za-z][A-Za-z0-9\<\>\_?\[\]]*)\s+[A-Z][A-Za-z0-9\_]*\s*\(.*\)', line)
-
-        is_comment = re.match(r'\s*///\s*(.*)\s*', line)
-
+        
+        # detect init of class
+        if (class_in_line):
+            class_name = class_in_line.group(2)
+            classes[class_name] = []
         # detect init of function
-        if function_in_line:
+        elif function_in_line:
             in_function = 1
+            comments_count,comment = CommentsCount(comments_count,line,comment)
+            car_count = countCar (car_count,line)
             in_key = regex_keys(in_key,line)
             func = re.sub(r'^\s*', r'', function_in_line.group())
-            input_results[func] = []
-            functions_variables[func] = []
-
+            input_results[func,class_name] = []
+            methods[func,class_name] = 0
+            comments[func,class_name] = 0
+            classes[class_name].append(func)
+            lines= 1
             # Input names must begin by "in"
             params_search = re.search(r'\(.+\)', func)
             if (params_search):
@@ -83,93 +101,40 @@ def testFile(path, file):
 
                 while(i < len(params)) :
                     params[i] = params[i].replace(r'(','').replace(r')','')
-                    split_by_space = re.split(r'\s+', params[i])
-                    input_to_test = split_by_space[-1]
-                    params[i] = input_to_test
-                    tested = (input_to_test[:2] == begin_of_parameter)
-                    if not tested :
-                        input_results[func].append(input_to_test)
+                    input_results[func,class_name].append(params[i])
                     i+=1
 
-                if (documentation != ""):
-                    # has documentation
-                    if (not d_ok):
-                        # documentation is not ok
-                        functions_documentation[func] = -1
-                    else:
-                        # test parameters
-                        equals = np.array_equal(params, d_params)
-                        if (equals):
-                            # params are ok
-                            functions_documentation[func] = 1
-                        else:
-                            # params are wrong
-                            functions_documentation[func] = 0
-                            d_params_wrong[func] = (params, d_params)
-
-                else:
-                    # no documentation
-                    functions_documentation[func] = -2
-    
-                documentation = ""
-                d_params = []
 
         # detect it is inside function
         elif in_function == 1:
             in_key = regex_keys(in_key,line)
-            if ("}" in line and in_comment == 0 and in_key == 0):
+            comments_count,comment = CommentsCount(comments_count,line,comment)
+            car_count = countCar (car_count,line)
+            if ("}" in line  and in_key == 0):
+                methods[func,class_name] = lines +1
                 in_function = 0
-            
-            #Testing variables names
+                car_count = 0
+                comments[func,class_name] = comments_count
+                comments_count = 0
+                lines=0
+            else :
+                lines+=1
 
-            variable_test = re.search(r'([A-Za-z0-9\[\]\_\<\>,?]+)\s+([A-Za-z0-9\_.]+)\s*=[^;]+\s*;', line)
-            if (variable_test):
-
-                type = variable_test.groups()[0]
-                name = variable_test.groups()[1]
-                split_text = [type, name]
-                for variable in variables:
-                    if re.match(variable, type):
-                        if re.match(variables[variable], name):
-                            split_text.append(1)
-                        else:
-                            split_text.append(0)
-                functions_variables[func].append(split_text)
-
-        # Comments testing        
-        elif is_comment:
-            if (not in_comment):
-                in_comment = 1
-                documentation = ""
-            documentation = documentation + is_comment.groups()[0]
-
-        elif in_comment:
-            in_comment = 0
-            correct_documentation = re.match(r'<summary>[^<]+</summary>((?:<param name="[^\"]+">[^<]+</param>)*)<returns>[^<]+</returns><example><code>[^<]+</code></example>', documentation)
-            if (correct_documentation):
-                # documentation ok
-                d_ok = True
-                params = correct_documentation.groups()[0]
-                d_params = re.findall(r'<param name="([^\"]+)">[^<]+</param>', params)
-            else: 
-                # documentation not ok
-                d_ok = False
 
 def cleanData():
-    in_comment = 0
     in_function = 0
-    functions_documentation.clear()
+    classes.clear()
+    methods.clear()
     input_results.clear()
-    functions_variables.clear()
-    d_params.clear()
-    d_params_wrong.clear()
-    documentation = ""
-    d_params.clear()
+    comments.clear()
 
-def printResults ():
+def printResults ():  # TODO
     flag = 0
-  #  print(str(d_params_wrong))
-    
+  #  print(input_results)
+  #  print(methods)
+  #  print(classes)
+    print(comments)
+    """
     for key in input_results.keys():
         if (input_results[key]) :
             if (flag == 0):
@@ -208,6 +173,7 @@ def printResults ():
                     else:
                         x = '\033[92m\033[1m' + u'\u2714' + '\033[0m ' + ' '
                     print(x + variable[0] + ' ' + variable[1] )
+                    """
 
 files = readFilesFromPath(sys.argv[1])
 nfiles = len(files)
@@ -222,11 +188,11 @@ while nTested<nfiles :
 
 # To use this script use :
 #  on Linux:
-#   $ chmod +x script3.py
-#   $ ./script3.py PathToFiles
+#   $ chmod +x script4.py
+#   $ ./script4.py PathToFiles
 #      example:
-#      $ ./script3.py Files
+#      $ ./script4.py Files
 #  on Windows:
-#   $ python ./script3.py PathToFiles
+#   $ python ./script4.py PathToFiles
 #      example:
-#      $ python ./script3.py Files
+#      $ python ./script4.py Files
