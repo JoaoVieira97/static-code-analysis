@@ -52,6 +52,7 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<List<object>> Get(long id)
         {
+            // Sim claro
             return await _UtentesRepository.Get(_UtentesRepository, _EntidadesRegistadasRepository, _EntidadesRepository, id);
         }
 
@@ -64,7 +65,7 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]          string invalue)
+        public void Post([FromBody] string invalue)
         {
             /* teste1 */
             /*
@@ -109,7 +110,7 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
         }
     }
 
-      public class UtentesController2 : ControllerBase
+    public class UtentesController2 : ControllerBase
     {
         readonly IUtentesRepository _UtentesRepository;
         readonly IEntidadesRegistadasRepository _EntidadesRegistadasRepository;
@@ -160,7 +161,7 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]          string invalue)
+        public void Post([FromBody] string invalue)
         {
         }
 

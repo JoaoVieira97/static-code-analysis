@@ -64,7 +64,7 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]          string invalue)
+        public void Post([FromBody] string invalue)
         {
         }
 
@@ -92,7 +92,7 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
         [HttpDelete("{id}")]
         public void Delete(int inid)
         {
-            public Dictionary<int,Cliente> dicclientes = 0;
+            Dictionary<int,Cliente> dicclientes = 0;
             private int intname = 0 ;
 
             private int[] arrnames = 0 ;

@@ -15,18 +15,16 @@ params_in_method = 4
 comments_in_method = 0.1 #percentage?
 
 # code data
-
 in_function = 0
 classes = {} # class -> [method]
-methods = {} # method,class -> lines
-input_results = {} # method,class -> [inputs]
-comments = {} # method,class -> n_comments 
+methods = {} # method, class -> lines
+input_results = {} # method, class -> [inputs]
+comments = {} # method, class -> n_comments 
 
 def readFilesFromPath(path):
   files = []
   files = os.listdir(path)
   return files
-
 
 def CommentsCount (comments_count,line,comment):
     regexA =  re.search('\/\*.*\*\/',line)     # /* ... */
@@ -41,9 +39,9 @@ def CommentsCount (comments_count,line,comment):
         elif regexC:
             comment+= regexC.group()
     elif regexEndComment:
-        comment+= regexEndComment.group()
+        comment += regexEndComment.group()
         comments_count = countCar(comments_count,comment)
-        comment=""
+        comment = ""
     else:
         comment+= line
     return comments_count,comment
@@ -51,18 +49,19 @@ def CommentsCount (comments_count,line,comment):
 def countCar (car_count,line):
     regex = re.findall('\S', line)
     if regex:
-        car_count+= len(regex)
+        car_count += len(regex)
     return car_count
 
 def regex_keys(in_key,line):
-            in_key += line.count('{')
-            in_key -= line.count('}')
-            keys_instring_regex = re.findall('[\'\"]([^\'\"]*[{}][^\'\"]*)+[\'\"]', line)
-            if (keys_instring_regex):
-                for st in keys_instring_regex :
-                    in_key -= st.count('{')
-                    in_key += st.count('}')
-            return in_key
+    in_key += line.count('{')
+    in_key -= line.count('}')
+    keys_instring_regex = re.findall('[\'\"]([^\'\"]*[{}][^\'\"]*)+[\'\"]', line)
+    if (keys_instring_regex):
+        for st in keys_instring_regex :
+            in_key -= st.count('{')
+            in_key += st.count('}')
+    return in_key
+
 def testFile(path, file):
    global in_function
 
@@ -74,18 +73,19 @@ def testFile(path, file):
    comment = ""
    for line in fileinput.input(path):
 
-        class_in_line = re.match(r'\s*(public|private)\s+class+\s+(.+):', line)
+        class_in_line = re.match(r'\s*(?:public|private)\s+class+\s+(.+):', line)
         function_in_line = re.match(r'\s*(public|private)\s+(async\s+)?(void|[A-Za-z][A-Za-z0-9\<\>\_?\[\]]*)\s+[A-Z][A-Za-z0-9\_]*\s*\(.*\)', line)
         
         # detect init of class
         if (class_in_line):
-            class_name = class_in_line.group(2)
+            class_name = class_in_line.group(1)
             classes[class_name] = []
+
         # detect init of function
         elif function_in_line:
             in_function = 1
             comments_count,comment = CommentsCount(comments_count,line,comment)
-            car_count = countCar (car_count,line)
+            car_count = countCar(car_count,line)
             in_key = regex_keys(in_key,line)
             func = re.sub(r'^\s*', r'', function_in_line.group())
             input_results[func,class_name] = []
@@ -93,7 +93,7 @@ def testFile(path, file):
             comments[func,class_name] = 0
             classes[class_name].append(func)
             lines= 1
-            # Input names must begin by "in"
+            # get parameters
             params_search = re.search(r'\(.+\)', func)
             if (params_search):
                 params = params_search.group().split(',')
@@ -110,7 +110,7 @@ def testFile(path, file):
             in_key = regex_keys(in_key,line)
             comments_count,comment = CommentsCount(comments_count,line,comment)
             car_count = countCar (car_count,line)
-            if ("}" in line  and in_key == 0):
+            if ("}" in line and in_key == 0):
                 methods[func,class_name] = lines +1
                 in_function = 0
                 car_count = 0
@@ -128,52 +128,42 @@ def cleanData():
     input_results.clear()
     comments.clear()
 
-def printResults ():  # TODO
-    flag = 0
-  #  print(input_results)
-  #  print(methods)
-  #  print(classes)
-    print(comments)
-    """
-    for key in input_results.keys():
-        if (input_results[key]) :
-            if (flag == 0):
-                print('\033[1m' + '---> FUNCTIONS INPUT\'S:' + '\033[0m\n')
-            flag += 1
-            print("-> Function \033[4m" + key + "\033[0m:")
-            for inp in input_results[key]:
-                print('\033[91m\033[1m' + u'\u274C' + '\033[0m  ' + "Missing 'in' in the input parameter \033[93m" + inp + "\033[0m")
-    
-    if (functions_documentation):
-        print('\033[1m' + '\n---> FUNCTIONS DOCUMENTATION:' + '\033[0m\n')
-        bad = '\033[91m\033[1m' + u'\u274C' + '\033[0m ' + ' '
-        good = '\033[92m\033[1m' + u'\u2714' + '\033[0m ' + ' '
-        
-        for func in functions_documentation:
-            if (functions_documentation[func] == -2):
-                print(bad + func + ': no documentation')
-            elif (functions_documentation[func] == -1):
-                print(bad + func + ': Documentation is not correct')
-            elif (functions_documentation[func] == 0):
-                print(bad + func + ': Parameters of function are different from the documentation')
-                print('\tFunction params = ' + str(d_params_wrong[func][0]))
-                print('\tDocumentation params = ' + str(d_params_wrong[func][1]))
-            else:
-                print(good + func)
-    
-    if (functions_variables):
-        print('\033[1m' + '\n---> VARIABLES NAME RULE:' + '\033[0m\n')
-        for key in functions_variables:
-            if (functions_variables[key]):
-                print("-> Function \033[4m" + key +  "\033[0m:")
-                for variable in functions_variables.get(key):
-                    x = ""
-                    if (variable[2]==0):
-                        x = '\033[91m\033[1m' + u'\u274C' + '\033[0m ' + ' '
-                    else:
-                        x = '\033[92m\033[1m' + u'\u2714' + '\033[0m ' + ' '
-                    print(x + variable[0] + ' ' + variable[1] )
-                    """
+def printResults():
+    good = '\033[92m\033[1m' + u'\u2714' + '\033[0m ' + ' '
+    bad = '\033[91m\033[1m' + u'\u274C' + '\033[0m ' + ' '
+
+    # number of classes
+    print('\033[1m' + '\n---> CLASSES IMPLEMENTED:' + '\033[0m\n')
+    if (len(classes.keys()) == 1):
+        print(good + 'Apenas uma classe implementada no ficheiro:')
+    else:
+        print(bad + 'Mais do que uma classe implementada no ficheiro:')
+    for cl in classes.keys():
+        print(cl)
+
+    # number of methods
+    print('\033[1m' + '\n---> NUMBER OF METHODS IN CLASS: (<= ' + str(methods_in_class)  + ')\033[0m\n')
+    for cl in classes.keys():
+        if (len(classes[cl]) <= methods_in_class):
+            print(good + cl + ' (' + str(len(classes[cl])) + ')')
+        else:
+            print(bad + cl + ' (' + str(len(classes[cl])) + ')') 
+
+    # method number of lines
+    print('\033[1m' + '\n---> NUMBER OF LINES OF METHODS: (<= ' + str(lines_in_method)  + ')\033[0m\n')
+    for method in methods.keys():
+        if (methods[method] <= lines_in_method):
+            print(good + method[1] + ' - ' + method[0] + ' (' + str(methods[method]) + ')')
+        else:
+            print(bad + method[1] + ' - ' + method[0] + ' (' + str(methods[method]) + ')')
+
+    # method number of parameters
+    print('\033[1m' + '\n---> NUMBER OF PARAMETERS OF METHODS: (<= ' + str(params_in_method)  + ')\033[0m\n')
+    for method in input_results.keys():
+        if (len(input_results[method]) <= params_in_method):
+            print(good + method[1] + ' - ' + method[0] + ' (' + str(len(input_results[method])) + ')')
+        else:
+            print(bad + method[1] + ' - ' + method[0] + ' (' + str(len(input_results[method])) + ')')
 
 files = readFilesFromPath(sys.argv[1])
 nfiles = len(files)

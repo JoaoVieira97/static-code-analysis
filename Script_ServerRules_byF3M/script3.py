@@ -33,35 +33,31 @@ d_ok = False
 d_params_wrong = {}
 
 def readFilesFromPath(path):
-  files = []
-  files = os.listdir(path)
-  return files
+    files = []
+    files = os.listdir(path)
+    return files
 
-def regex_keys(in_key,line):
-        #    print('---------------')
-            in_key += line.count('{')
-            in_key -= line.count('}')
-            keys_instring_regex = re.findall('[\'\"]([^\'\"]*[{}][^\'\"]*)+[\'\"]', line)
-            if (keys_instring_regex):
-                for st in keys_instring_regex :
-                    in_key -= st.count('{')
-                    in_key += st.count('}')
-                  #  print(st)
-         #   print(in_key)
-          #  print(line)
-          #  print('---------------')
-            return in_key
+def regex_keys(in_key, line):
+    in_key += line.count('{')
+    in_key -= line.count('}')
+    keys_instring_regex = re.findall('[\'\"]([^\'\"]*[{}][^\'\"]*)+[\'\"]', line)
+    if (keys_instring_regex):
+        for st in keys_instring_regex :
+            in_key -= st.count('{')
+            in_key += st.count('}')
+    return in_key
+
 def testFile(path, file):
-   global in_comment
-   global in_function
-   global documentation
-   global d_params
-   global d_ok
-   global d_params_wrong
-   in_key = 0 # for testing '{' '}' 
-   class_name = file[:len(file)-3]
+    global in_comment
+    global in_function
+    global documentation
+    global d_params
+    global d_ok
+    global d_params_wrong
+    in_key = 0 # for testing '{' '}' 
+    class_name = file[:len(file)-3]
    
-   for line in fileinput.input(path):
+    for line in fileinput.input(path):
 
         function_in_line = re.match(r'\s*(public|private)\s+(async\s+)?(void|[A-Za-z][A-Za-z0-9\<\>\_?\[\]]*)\s+[A-Z][A-Za-z0-9\_]*\s*\(.*\)', line)
 
@@ -168,7 +164,6 @@ def cleanData():
 
 def printResults ():
     flag = 0
-  #  print(str(d_params_wrong))
     
     for key in input_results.keys():
         if (input_results[key]) :
@@ -196,7 +191,8 @@ def printResults ():
             else:
                 print(good + func)
     
-    if (functions_variables):
+    print_f = any(value for value in functions_variables.values())
+    if (functions_variables and print_f):
         print('\033[1m' + '\n---> VARIABLES NAME RULE:' + '\033[0m\n')
         for key in functions_variables:
             if (functions_variables[key]):
