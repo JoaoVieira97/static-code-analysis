@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+from tkinter import *
 import fileinput
 import sys
 import re
@@ -118,6 +118,100 @@ def testFile(file):
             print('\n'.join(properties_wrong))
 
 
+def testFileGUI(file,text):
+    good = u'\u2714'
+    bad =  u'\u274C'
+    global step
+    global tableName_rule
+    global fk_n 
+    global foreignKeys_wrong 
+    global prop_n 
+    global properties_wrong
+    global required_fields
+    for line in fileinput.input(file):
+        
+        if (step == 0): # find table name
+            
+            # table name
+            table_name = re.match(r'\s*\[Table\(\"(\w*)\"\)\]\s*', line)
+            
+            if (table_name):
+                step = 1
+                table = table_name.groups()[0]
+                if (table[0:2] == table_init):
+                    tableName_rule = True
+
+        elif (step == 1): # find required fields, foreign keys and size of properties
+
+            # required fields
+            field_name = re.match(r'\s*\[Column\(\"(\w*)\"\)\]\s*', line)
+
+            if (field_name):
+                field = field_name.groups()[0]
+                if (field in required_fields):
+                    required_fields[field] = 1
+
+            # foreign keys
+            foreign_key = re.match(r'\s*\[ForeignKey\(\"(\w*)\"\)\]\s*', line)
+
+            if (foreign_key):
+                fk_n += 1
+                fk = foreign_key.groups()[0]
+                if (fk[0:2] != fk_init):
+                    foreignKeys_wrong.append(fk)
+
+            # properties size
+            property = re.match(r'\s*(private|public|protected|internal|protected internal|private protected)(\s+(virtual|override))?\s+[A-Za-z\<\>?\[\]]+\s+(\w+)\s*\{\s*get\s*;\s*set\s*;\s*\}\s*', line)
+            
+            if (property):
+                prop_n += 1
+                prop = property.groups()[-1]
+                if (len(prop) > properties_max_length):
+                    properties_wrong.append(prop)
+
+    if (step == 0):
+        
+        text.insert(INSERT,'\nError: ',["red","bold"])
+        text.insert(INSERT,'No table name defined in the file processed!',["white"])
+    else:
+
+        text.insert(INSERT,'\n\n---> TABLE NAME RULES:\n',["white","bold"])
+        if (tableName_rule):
+            text.insert(INSERT,good,["green","bold"])
+            text.insert(INSERT," " + table + ' matches the rule!',"white")
+        else:
+            text.insert(INSERT,bad,["red","bold"])
+            text.insert(INSERT," " + table + 'doesn\'t match the rule!',"white")
+        
+        text.insert(INSERT,'\n\n---> REQUIRED FIELDS:',["white","bold"])
+        for field in required_fields:
+            text.insert(INSERT,"\n")
+            if (required_fields[field] == 1):
+                text.insert(INSERT,good,["green","bold"])
+                text.insert(INSERT,' ' + field,"white")  
+            else:
+                text.insert(INSERT,bad,["red","bold"])
+                text.insert(INSERT,' ' + field,"white")
+
+        text.insert(INSERT,'\n\n---> FOREIGN KEYS RULE:\n',["white","bold"])
+        if (foreignKeys_wrong == []):
+            text.insert(INSERT,good,["green","bold"])
+            text.insert(INSERT,' All the '+ str(fk_n)+ ' foreign keys are well defined!',"white")  
+        else:
+            text.insert(INSERT,bad,["red","bold"])
+            text.insert(INSERT,' The following ' + str(len(foreignKeys_wrong)) + ' foreign keys didn\'t match the rule!\n',"white") 
+            text.insert(INSERT,'\n'.join(foreignKeys_wrong) ,"white")
+
+
+        text.insert(INSERT,'\n\n---> PROPERTIES SIZE:\n',["white","bold"])
+        if (properties_wrong == []):
+            text.insert(INSERT,good,["green","bold"])
+            text.insert(INSERT, ' All the ' + str(prop_n) + ' properties have a proper size! (<= 20 char\'s)',"white")
+        else:
+            text.insert(INSERT,bad,["red","bold"])
+            text.insert(INSERT,' The following ' + str(len(properties_wrong)) + ' properties didn\'t match the rule! (<= 20 char\'s)\n' , "white")
+            text.insert(INSERT,'\n'.join(properties_wrong) ,"white")
+    return text
 def cleanData():
     global step
     global tableName_rule
@@ -135,17 +229,34 @@ def cleanData():
     for field in required_fields:
         required_fields[field]=0
 
-files = readFilesFromPath(sys.argv[1])
-nfiles = len(files)
-nTested = 0
 
-print('\033[1m' + '\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------' + '\033[0m')
+if __name__ == '__main__':
+    files = readFilesFromPath(sys.argv[1])
+    nfiles = len(files)
+    nTested = 0
 
-while (nTested < nfiles):
-    print('\033[34m' + '\033[1m' + '\n-------> ' + '\033[0m' + '\033[34m' + '\033[1m' + '\033[4m' + files[nTested] + '\033[0m' + '\033[34m' + '\033[1m' + ' <-------' + '\033[0m\n')
-    cleanData()
-    testFile(sys.argv[1] + "/"+ files[nTested])
-    nTested+=1
+    print('\033[1m' + '\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------' + '\033[0m')
+
+    while (nTested < nfiles):
+        print('\033[34m' + '\033[1m' + '\n-------> ' + '\033[0m' + '\033[34m' + '\033[1m' + '\033[4m' + files[nTested] + '\033[0m' + '\033[34m' + '\033[1m' + ' <-------' + '\033[0m\n')
+        cleanData()
+        testFile(sys.argv[1] + "/"+ files[nTested])
+        nTested+=1
+
+def printToGUI(text,path):
+    files = readFilesFromPath(path)
+    nfiles = len(files)
+    nTested = 0
+
+    text.insert(INSERT,'\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------\n',["white","center","bold"])
+    while (nTested < nfiles):
+        text.insert(INSERT,"\n-------> ",["center","normal","blue"])
+        text.insert(INSERT,files[nTested],["center","underline","blue"])
+        text.insert(INSERT," <-------\n",["center","normal","blue"])
+        cleanData()
+        text = testFileGUI(path + "/"+ files[nTested],text)
+        nTested+=1
+    return text
 
 # To use this script use :
 #  on Linux:

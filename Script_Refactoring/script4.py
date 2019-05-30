@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from tkinter import filedialog
+from tkinter import *
 import fileinput
 import sys
 import re
@@ -175,16 +177,92 @@ def printResults():
         else:
             print(bad + method[1] + ' - ' + method[0] + ' (' + str(comments[method]*100) + '%)')
 
-files = readFilesFromPath(sys.argv[1])
-nfiles = len(files)
-nTested = 0
-print('\033[1m' + '\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------' + '\033[0m')
-while nTested<nfiles :
-    print('\033[34m' + '\033[1m' + '\n-------> ' + '\033[0m' + '\033[34m' + '\033[1m' + '\033[4m' + files[nTested] + '\033[0m' + '\033[34m' + '\033[1m' + ' <-------' + '\033[0m\n')
-    testFile(sys.argv[1] + "/"+ files[nTested],files[nTested])
-    printResults()
-    cleanData()
-    nTested+=1
+def printResultsGUI(text):
+
+    good = u'\u2714'
+    bad =  u'\u274C'
+
+    # number of classes
+    text.insert(INSERT,'\n---> CLASSES IMPLEMENTED:\n',["white","bold"])
+    if (len(classes.keys()) == 1):
+        text.insert(INSERT,good,["green","bold"])
+        text.insert(INSERT,' Apenas uma classe implementada no ficheiro:',["white"])
+    else:
+        text.insert(INSERT,bad,["red","bold"])
+        text.insert(INSERT,' Mais do que uma classe implementada no ficheiro:',["white"])
+    for cl in classes.keys():
+        text.insert(INSERT,'\n'+cl,["white"])
+
+    # number of methods
+    text.insert(INSERT,'\n---> NUMBER OF METHODS IN CLASS: (<= ' + str(methods_in_class)  + ')\n' ,["white","bold"] )
+    for cl in classes.keys():
+        if (len(classes[cl]) <= methods_in_class):
+            text.insert(INSERT,good,["green","bold"])
+            text.insert(INSERT,' '+cl+ ' (' + str(len(classes[cl])) + ')\n',["white"])
+        else:
+            text.insert(INSERT,bad,["red","bold"])
+            text.insert(INSERT,' '+cl+ ' (' + str(len(classes[cl])) + ')\n' ,["white"])
+
+    # method number of lines
+    text.insert(INSERT, '\n---> NUMBER OF LINES OF METHODS: (<= ' + str(lines_in_method)  + ')\n' ,["white","bold"] )
+    for method in methods.keys():
+        if (methods[method] <= lines_in_method):
+            text.insert(INSERT,good,["green","bold"])
+            text.insert(INSERT,' '+ method[1] + ' - ' + method[0] + ' (' + str(methods[method]) + ')\n',["white"])        
+        else:
+            text.insert(INSERT,bad,["red","bold"])
+            text.insert(INSERT,' '+ method[1] + ' - ' + method[0] + ' (' + str(methods[method]) + ')\n' ,["white"])
+
+
+    # method number of parameters
+    text.insert(INSERT, '\n---> NUMBER OF PARAMETERS OF METHODS: (<= ' + str(params_in_method)  + ')\n' ,["white","bold"] )
+    for method in input_results.keys():
+        if (len(input_results[method]) <= params_in_method):
+            text.insert(INSERT,good,["green","bold"])
+            text.insert(INSERT,' '+ method[1] + ' - ' + method[0] + ' (' + str(len(input_results[method])) + ')\n',["white"])   
+        else:
+            text.insert(INSERT,bad,["red","bold"])
+            text.insert(INSERT,' ' + method[1] + ' - ' + method[0] + ' (' + str(len(input_results[method])) + ')\n' ,["white"])
+    # percentage of comments
+    text.insert(INSERT, '\n---> PERCENTAGE OF COMMENTS OF METHODS: (<= ' + str(comments_in_method*100) + "%"  + ')\n' ,["white","bold"] )
+    for method in comments.keys():
+        if (comments[method] <= comments_in_method):
+            text.insert(INSERT,good,["green","bold"])
+            text.insert(INSERT,' ' + method[1] + ' - ' + method[0] + ' (' + str(comments[method]*100) + '%)\n',["white"])   
+        else:
+            text.insert(INSERT,bad,["red","bold"])
+            text.insert(INSERT,' '+ method[1] + ' - ' + method[0] + ' (' + str(comments[method]*100) + '%)\n' ,["white"])
+    return text
+
+
+if __name__ == '__main__':
+    files = readFilesFromPath(sys.argv[1])
+    nfiles = len(files)
+    nTested = 0
+    print('\033[1m' + '\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------' + '\033[0m')
+    while nTested<nfiles :
+        print('\033[34m' + '\033[1m' + '\n-------> ' + '\033[0m' + '\033[34m' + '\033[1m' + '\033[4m' + files[nTested] + '\033[0m' + '\033[34m' + '\033[1m' + ' <-------' + '\033[0m\n')
+        testFile(sys.argv[1] + "/"+ files[nTested],files[nTested])
+        printResults()
+        cleanData()
+        nTested+=1
+
+def printToGUI (text,path) :
+
+    files = readFilesFromPath(path)
+    nfiles = len(files)
+    nTested = 0
+    text.insert(INSERT,'\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------\n',["white","center","bold"])
+    while nTested<nfiles :
+        text.insert(INSERT,"\n-------> ",["center","normal","blue"])
+        text.insert(INSERT,files[nTested],["center","underline","blue"])
+        text.insert(INSERT," <-------\n",["center","normal","blue"])
+        testFile(path+ "/"+ files[nTested],files[nTested])
+        text = printResultsGUI(text)
+        cleanData()
+        nTested+=1
+
+    return text
 
 # To use this script use :
 #  on Linux:

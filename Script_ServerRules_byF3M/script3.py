@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from tkinter import filedialog
+from tkinter import *
 import fileinput
 import sys
 import re
@@ -205,16 +207,89 @@ def printResults ():
                         x = '\033[92m\033[1m' + u'\u2714' + '\033[0m ' + ' '
                     print(x + variable[0] + ' ' + variable[1] )
 
-files = readFilesFromPath(sys.argv[1])
-nfiles = len(files)
-nTested = 0
-print('\033[1m' + '\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------' + '\033[0m')
-while nTested<nfiles :
-    print('\033[34m' + '\033[1m' + '\n-------> ' + '\033[0m' + '\033[34m' + '\033[1m' + '\033[4m' + files[nTested] + '\033[0m' + '\033[34m' + '\033[1m' + ' <-------' + '\033[0m\n')
-    testFile(sys.argv[1] + "/"+ files[nTested],files[nTested])
-    printResults()
-    cleanData()
-    nTested+=1
+
+def printResultsToGUI (text):
+    flag = 0
+    
+    good = u'\u2714'
+    bad =  u'\u274C'
+    for key in input_results.keys():
+        if (input_results[key]) :
+            if (flag == 0):
+                text.insert(INSERT,'---> FUNCTIONS INPUT\'S:\n',["white","bold"])
+            flag += 1
+            text.insert(INSERT,"\n-> Function " + key + ":",["white"])
+            for inp in input_results[key]:
+                text.insert(INSERT,"\n")
+                text.insert(INSERT,bad,["red","bold"])
+                text.insert(INSERT,"  Missing 'in' in the input parameter " ,["white"])
+                text.insert(INSERT, inp, "yellow")
+    
+    if (functions_documentation):
+        text.insert(INSERT,'\n\n---> FUNCTIONS DOCUMENTATION:\n',["white","bold"])
+        
+        for func in functions_documentation:
+            text.insert(INSERT,"\n")
+            if (functions_documentation[func] == -2):
+                text.insert(INSERT,bad,["red","bold"])
+                text.insert(INSERT," " + func + ': no documentation' ,"white")
+            elif (functions_documentation[func] == -1):
+                text.insert(INSERT,bad,["red","bold"])
+                text.insert(INSERT, " "+ func + ': Documentation is not correct',"white")
+            elif (functions_documentation[func] == 0):
+                text.insert(INSERT,bad,["red","bold"])
+                text.insert(INSERT," "+ func + ': Parameters of function are different from the documentation' ,"white")
+                text.insert(INSERT,'\n\tFunction params = ' + str(d_params_wrong[func][0]) ,"white")
+                text.insert(INSERT,'\n\tDocumentation params = ' + str(d_params_wrong[func][1]) ,"white")
+
+            else:
+                text.insert(INSERT,good,["green","bold"])
+                text.insert(INSERT, " " + func,"white")    
+    print_f = any(value for value in functions_variables.values())
+    if (functions_variables and print_f):
+        text.insert(INSERT,'\n\n---> VARIABLES NAME RULE:\n',["white","bold"])
+        for key in functions_variables:
+            if (functions_variables[key]):
+                text.insert(INSERT,"\n-> Function " + key + ":",["white"])
+                for variable in functions_variables.get(key):
+                    text.insert(INSERT,"\n")
+                    x = ""
+                    if (variable[2]==0):
+                        text.insert(INSERT,bad,["red","bold"])
+                    else:
+                        text.insert(INSERT,good,["green","bold"])
+                    text.insert(INSERT," " + variable[0] + ' ' + variable[1] ,["white"])
+    return text
+
+def printToGUI(text,path):
+    files = readFilesFromPath(path)
+    nfiles = len(files)
+    nTested = 0
+    text.insert(INSERT,'\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------\n',["white","center","bold"])
+    while nTested<nfiles :
+        text.insert(INSERT,"\n-------> ",["center","normal","blue"])
+        text.insert(INSERT,files[nTested],["center","underline","blue"])
+        text.insert(INSERT," <-------\n",["center","normal","blue"])
+        testFile(path + "/"+ files[nTested],files[nTested])
+        text = printResultsToGUI(text)
+        cleanData()
+        nTested+=1
+    return text
+ 
+
+if __name__ == '__main__':
+    files = readFilesFromPath(sys.argv[1])
+    nfiles = len(files)
+    nTested = 0
+    print('\033[1m' + '\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------' + '\033[0m')
+    while nTested<nfiles :
+        print('\033[34m' + '\033[1m' + '\n-------> ' + '\033[0m' + '\033[34m' + '\033[1m' + '\033[4m' + files[nTested] + '\033[0m' + '\033[34m' + '\033[1m' + ' <-------' + '\033[0m\n')
+        testFile(sys.argv[1] + "/"+ files[nTested],files[nTested])
+        printResults()
+        cleanData()
+        nTested+=1
+
+
 
 # To use this script use :
 #  on Linux:
