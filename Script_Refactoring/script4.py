@@ -113,8 +113,11 @@ def testFile(path, file):
             if ("}" in line and in_key == 0):
                 methods[func,class_name] = lines +1
                 in_function = 0
+                if (car_count!=0) :
+                    comments[func,class_name] = comments_count/car_count
+                else: 
+                    comments[func,class_name] = 0
                 car_count = 0
-                comments[func,class_name] = comments_count
                 comments_count = 0
                 lines=0
             else :
@@ -164,6 +167,13 @@ def printResults():
             print(good + method[1] + ' - ' + method[0] + ' (' + str(len(input_results[method])) + ')')
         else:
             print(bad + method[1] + ' - ' + method[0] + ' (' + str(len(input_results[method])) + ')')
+    # percentage of comments
+    print('\033[1m' + '\n---> PERCENTAGE OF COMMENTS OF METHODS: (<= ' + str(comments_in_method*100) + "%"  + ')\033[0m\n')
+    for method in comments.keys():
+        if (comments[method] <= comments_in_method):
+            print(good + method[1] + ' - ' + method[0] + ' (' + str(comments[method]*100) + '%)')
+        else:
+            print(bad + method[1] + ' - ' + method[0] + ' (' + str(comments[method]*100) + '%)')
 
 files = readFilesFromPath(sys.argv[1])
 nfiles = len(files)
