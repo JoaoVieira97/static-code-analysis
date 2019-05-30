@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from tkinter import *
 import fileinput
 import re
 import sys
@@ -17,10 +18,13 @@ controllers = []
 models_m = []
 reps_m = []
 controllers_m = []
+modelsMissing = 0
+repsMissing = 0
+controllersMissing = 0
 
-def readTables():
+def readTables(file_path):
     global tables
-    for line in fileinput.input(files=sys.argv[1]):
+    for line in fileinput.input(files=file_path):
         if ("public" in line and "virtual" in line and "DbSet" in line and "get" in line and "set" in line):
             splitLine = re.split(r'\s+', line)
             tables.append(splitLine[4])
@@ -30,27 +34,17 @@ def readFilesFromPath(path):
   files = (os.listdir(path))
   return files
 
-def readAll():
+def readAll(file_path, models_path, reps_path, controllers_path):
   global tables
   global models
   global reps
-  global controllers
+  global controllers  
   
-  readTables()
-  print('\033[4m' + '\033[1m' + '---> TABLES:' + '\033[0m')
-  print('\n'.join(tables))
+  readTables(file_path)
 
-  models = readFilesFromPath(sys.argv[2])
-  print('\033[1m' + '\n---> MODELS:' + '\033[0m')
-  print('\n'.join(models))
-
-  reps = readFilesFromPath(sys.argv[3])
-  print('\033[1m' + '\n---> REPOSITORIES:' + '\033[0m')
-  print('\n'.join(reps))
-  
-  controllers = readFilesFromPath(sys.argv[4])
-  print('\033[1m' + '\n--> CONTROLLERS:' + '\033[0m')
-  print('\n'.join(controllers))
+  models = readFilesFromPath(models_path)
+  reps = readFilesFromPath(reps_path)
+  controllers = readFilesFromPath(controllers_path)
 
 # i = 1 -> models
 # i = 2 -> reps
@@ -80,22 +74,112 @@ def testDirectory(i):
   return missing
 
 def testAll():
-  print('\033[91m' + '\033[1m' + '\n--> RESULTS:' + '\033[0m')
+  global modelsMissing
+  global repsMissing
+  global controllersMissing
   
   modelsMissing = testDirectory(1)
-  print("Missing " + str(modelsMissing) + " from " + str(len(tables)) + " models according to tables!")
-  #print('\n'.join(models_m))
-
   repsMissing = testDirectory(2)
-  print("Missing " + str(repsMissing) + " from " + str(len(tables)) + " repositorys according to tables!")
-  #print('\n'.join(reps_m))
-
   controllersMissing = testDirectory(3)
-  print("Missing " + str(controllersMissing) + " from " + str(len(tables)) + " controllers according to tables!")
-  #print('\n'.join(controllers_m))
 
-readAll()
-testAll()
+def printResults():
+  global tables
+  global models
+  global reps
+  global controllers
+
+  good = '\033[92m\033[1m' + u'\u2714' + '\033[0m ' + ' '
+  bad = '\033[91m\033[1m' + u'\u274C' + '\033[0m ' + ' '
+
+  # Data
+  print('\033[4m' + '\033[1m' + '---> TABLES:' + '\033[0m')
+  print('\n'.join(tables))
+
+  print('\033[1m' + '\n---> MODELS:' + '\033[0m')
+  print('\n'.join(models))
+
+  print('\033[1m' + '\n---> REPOSITORIES:' + '\033[0m')
+  print('\n'.join(reps))
+
+  print('\033[1m' + '\n--> CONTROLLERS:' + '\033[0m')
+  print('\n'.join(controllers))
+
+  # Results
+  print('\033[91m' + '\033[1m' + '\n--> RESULTS:' + '\033[0m')
+  
+  if (modelsMissing == 0):
+    print(good + "Missing " + str(modelsMissing) + " from " + str(len(tables)) + " models according to tables!")
+  else:
+    print(bad + "Missing " + str(modelsMissing) + " from " + str(len(tables)) + " models according to tables!")
+
+  if (repsMissing == 0):
+    print(good + "Missing " + str(repsMissing) + " from " + str(len(tables)) + " repositorys according to tables!")
+  else:
+    print(bad + "Missing " + str(repsMissing) + " from " + str(len(tables)) + " repositorys according to tables!")
+  
+  if (controllersMissing == 0):
+    print(good + "Missing " + str(controllersMissing) + " from " + str(len(tables)) + " controllers according to tables!")
+  else:
+    print(bad + "Missing " + str(controllersMissing) + " from " + str(len(tables)) + " controllers according to tables!")
+
+def printResultsToGUI(text):
+  global tables
+  global models
+  global reps
+  global controllers
+
+  good = u'\u2714'
+  bad = u'\u274C'
+
+  # Data
+  text.insert(INSERT, '---> TABLES:\n', ["white","bold", "underline"])
+  text.insert(INSERT, '\n'.join(tables), ["white"])
+
+  text.insert(INSERT, '\n\n---> MODELS:\n', ["white","bold"])
+  text.insert(INSERT, '\n'.join(models), ["white"])
+
+  text.insert(INSERT, '\n\n---> REPOSITORIES:\n', ["white","bold"])
+  text.insert(INSERT, '\n'.join(reps), ["white"])
+
+  text.insert(INSERT, '\n\n--> CONTROLLERS:\n', ["white","bold"])
+  text.insert(INSERT, '\n'.join(controllers), ["white"])
+
+  # Results
+  text.insert(INSERT, '\n\n--> RESULTS:\n', ["red","bold"])
+  
+  if (modelsMissing == 0):
+    text.insert(INSERT, good, ["green","bold"])
+    text.insert(INSERT, " Missing " + str(modelsMissing) + " from " + str(len(tables)) + " models according to tables!\n", ["white"])
+  else:
+    text.insert(INSERT, bad, ["red","bold"])
+    text.insert(INSERT, " Missing " + str(modelsMissing) + " from " + str(len(tables)) + " models according to tables!\n", ["white"])
+
+  if (repsMissing == 0):
+    text.insert(INSERT, good, ["green","bold"])
+    text.insert(INSERT, " Missing " + str(repsMissing) + " from " + str(len(tables)) + " repositorys according to tables!\n", ["white"])
+  else:
+    text.insert(INSERT, bad, ["red","bold"])
+    text.insert(INSERT, " Missing " + str(repsMissing) + " from " + str(len(tables)) + " repositorys according to tables!\n", ["white"])
+  
+  if (controllersMissing == 0):
+    text.insert(INSERT, good, ["green","bold"])
+    text.insert(INSERT, " Missing " + str(controllersMissing) + " from " + str(len(tables)) + " controllers according to tables!\n", ["white"])
+  else:
+    text.insert(INSERT, bad, ["red","bold"])
+    text.insert(INSERT, " Missing " + str(controllersMissing) + " from " + str(len(tables)) + " controllers according to tables!\n", ["white"])
+  
+  return text
+
+if __name__ == '__main__':
+  readAll(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+  testAll()
+  printResults()
+
+def printToGUI (text, file_path, models_path, reps_path, controllers_path):
+  readAll(file_path, models_path, reps_path, controllers_path)
+  testAll()
+  text = printResultsToGUI(text)
+  return text
 
 # To use this script use :
 #  on Linux:
