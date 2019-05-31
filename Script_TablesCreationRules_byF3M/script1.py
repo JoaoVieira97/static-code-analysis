@@ -170,12 +170,10 @@ def testFileGUI(file,text):
                     properties_wrong.append(prop)
 
     if (step == 0):
-        
         text.insert(INSERT,'\nError: ',["red","bold"])
         text.insert(INSERT,'No table name defined in the file processed!',["white"])
     else:
-
-        text.insert(INSERT,'\n\n---> TABLE NAME RULES:\n',["white","bold"])
+        text.insert(INSERT,'\n---> TABLE NAME RULES:\n',["white","bold"])
         if (tableName_rule):
             text.insert(INSERT,good,["green","bold"])
             text.insert(INSERT," " + table + ' matches the rule!',"white")
@@ -206,7 +204,7 @@ def testFileGUI(file,text):
         text.insert(INSERT,'\n\n---> PROPERTIES SIZE:\n',["white","bold"])
         if (properties_wrong == []):
             text.insert(INSERT,good,["green","bold"])
-            text.insert(INSERT, ' All the ' + str(prop_n) + ' properties have a proper size! (<= 20 char\'s)',"white")
+            text.insert(INSERT, ' All the ' + str(prop_n) + ' properties have a proper size! (<= 20 char\'s)\n',"white")
         else:
             text.insert(INSERT,bad,["red","bold"])
             text.insert(INSERT,' The following ' + str(len(properties_wrong)) + ' properties didn\'t match the rule! (<= 20 char\'s)\n' , "white")
