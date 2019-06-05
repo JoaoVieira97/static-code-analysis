@@ -92,7 +92,7 @@ def printResults():
   bad = '\033[91m\033[1m' + u'\u274C' + '\033[0m ' + ' '
 
   # Data
-  print('\033[4m' + '\033[1m' + '---> TABLES:' + '\033[0m')
+  print('\033[1m' + '---> TABLES:' + '\033[0m')
   print('\n'.join(tables))
 
   print('\033[1m' + '\n---> MODELS:' + '\033[0m')
@@ -101,7 +101,7 @@ def printResults():
   print('\033[1m' + '\n---> REPOSITORIES:' + '\033[0m')
   print('\n'.join(reps))
 
-  print('\033[1m' + '\n--> CONTROLLERS:' + '\033[0m')
+  print('\033[1m' + '\n---> CONTROLLERS:' + '\033[0m')
   print('\n'.join(controllers))
 
   # Results
@@ -132,41 +132,41 @@ def printResultsToGUI(text):
   bad = u'\u274C'
 
   # Data
-  text.insert(INSERT, '---> TABLES:\n', ["white","bold", "underline"])
-  text.insert(INSERT, '\n'.join(tables), ["white"])
+  text.insert(INSERT, '---> TABLES:\n', ["bold"])
+  text.insert(INSERT, '\n'.join(tables))
 
-  text.insert(INSERT, '\n\n---> MODELS:\n', ["white","bold"])
-  text.insert(INSERT, '\n'.join(models), ["white"])
+  text.insert(INSERT, '\n\n---> MODELS:\n', ["bold"])
+  text.insert(INSERT, '\n'.join(models))
 
-  text.insert(INSERT, '\n\n---> REPOSITORIES:\n', ["white","bold"])
-  text.insert(INSERT, '\n'.join(reps), ["white"])
+  text.insert(INSERT, '\n\n---> REPOSITORIES:\n', ["bold"])
+  text.insert(INSERT, '\n'.join(reps))
 
-  text.insert(INSERT, '\n\n--> CONTROLLERS:\n', ["white","bold"])
-  text.insert(INSERT, '\n'.join(controllers), ["white"])
+  text.insert(INSERT, '\n\n---> CONTROLLERS:\n', ["bold"])
+  text.insert(INSERT, '\n'.join(controllers))
 
   # Results
   text.insert(INSERT, '\n\n--> RESULTS:\n', ["red","bold"])
   
   if (modelsMissing == 0):
     text.insert(INSERT, good, ["green","bold"])
-    text.insert(INSERT, " Missing " + str(modelsMissing) + " from " + str(len(tables)) + " models according to tables!\n", ["white"])
+    text.insert(INSERT, " Missing " + str(modelsMissing) + " from " + str(len(tables)) + " models according to tables!\n")
   else:
     text.insert(INSERT, bad, ["red","bold"])
-    text.insert(INSERT, " Missing " + str(modelsMissing) + " from " + str(len(tables)) + " models according to tables!\n", ["white"])
+    text.insert(INSERT, " Missing " + str(modelsMissing) + " from " + str(len(tables)) + " models according to tables!\n")
 
   if (repsMissing == 0):
     text.insert(INSERT, good, ["green","bold"])
-    text.insert(INSERT, " Missing " + str(repsMissing) + " from " + str(len(tables)) + " repositorys according to tables!\n", ["white"])
+    text.insert(INSERT, " Missing " + str(repsMissing) + " from " + str(len(tables)) + " repositorys according to tables!\n")
   else:
     text.insert(INSERT, bad, ["red","bold"])
-    text.insert(INSERT, " Missing " + str(repsMissing) + " from " + str(len(tables)) + " repositorys according to tables!\n", ["white"])
+    text.insert(INSERT, " Missing " + str(repsMissing) + " from " + str(len(tables)) + " repositorys according to tables!\n")
   
   if (controllersMissing == 0):
     text.insert(INSERT, good, ["green","bold"])
-    text.insert(INSERT, " Missing " + str(controllersMissing) + " from " + str(len(tables)) + " controllers according to tables!\n", ["white"])
+    text.insert(INSERT, " Missing " + str(controllersMissing) + " from " + str(len(tables)) + " controllers according to tables!\n")
   else:
     text.insert(INSERT, bad, ["red","bold"])
-    text.insert(INSERT, " Missing " + str(controllersMissing) + " from " + str(len(tables)) + " controllers according to tables!\n", ["white"])
+    text.insert(INSERT, " Missing " + str(controllersMissing) + " from " + str(len(tables)) + " controllers according to tables!\n")
   
   return text
 

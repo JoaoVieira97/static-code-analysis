@@ -216,41 +216,40 @@ def printResultsToGUI (text):
     for key in input_results.keys():
         if (input_results[key]) :
             if (flag == 0):
-                text.insert(INSERT,'---> FUNCTIONS INPUT\'S:\n',["white","bold"])
+                text.insert(INSERT,'---> FUNCTIONS INPUT\'S:\n',["bold"])
             flag += 1
-            text.insert(INSERT,"\n-> Function " + key + ":",["white"])
+            text.insert(INSERT,"\n-> Function " + key + ":")
             for inp in input_results[key]:
                 text.insert(INSERT,"\n")
                 text.insert(INSERT,bad,["red","bold"])
-                text.insert(INSERT,"  Missing 'in' in the input parameter " ,["white"])
+                text.insert(INSERT,"  Missing 'in' in the input parameter ")
                 text.insert(INSERT, inp, "yellow")
     
     if (functions_documentation):
-        text.insert(INSERT,'\n\n---> FUNCTIONS DOCUMENTATION:\n',["white","bold"])
+        text.insert(INSERT,'\n\n---> FUNCTIONS DOCUMENTATION:\n',["bold"])
         
         for func in functions_documentation:
             text.insert(INSERT,"\n")
             if (functions_documentation[func] == -2):
                 text.insert(INSERT,bad,["red","bold"])
-                text.insert(INSERT," " + func + ': no documentation' ,"white")
+                text.insert(INSERT," " + func + ': no documentation')
             elif (functions_documentation[func] == -1):
                 text.insert(INSERT,bad,["red","bold"])
-                text.insert(INSERT, " "+ func + ': Documentation is not correct',"white")
+                text.insert(INSERT, " "+ func + ': Documentation is not correct')
             elif (functions_documentation[func] == 0):
                 text.insert(INSERT,bad,["red","bold"])
-                text.insert(INSERT," "+ func + ': Parameters of function are different from the documentation' ,"white")
-                text.insert(INSERT,'\n\tFunction params = ' + str(d_params_wrong[func][0]) ,"white")
-                text.insert(INSERT,'\n\tDocumentation params = ' + str(d_params_wrong[func][1]) ,"white")
-
+                text.insert(INSERT," "+ func + ': Parameters of function are different from the documentation')
+                text.insert(INSERT,'\n\tFunction params = ' + str(d_params_wrong[func][0]))
+                text.insert(INSERT,'\n\tDocumentation params = ' + str(d_params_wrong[func][1]))
             else:
                 text.insert(INSERT,good,["green","bold"])
-                text.insert(INSERT, " " + func,"white")    
+                text.insert(INSERT, " " + func)    
     print_f = any(value for value in functions_variables.values())
     if (functions_variables and print_f):
-        text.insert(INSERT,'\n\n---> VARIABLES NAME RULE:\n',["white","bold"])
+        text.insert(INSERT,'\n\n---> VARIABLES NAME RULE:\n',["bold"])
         for key in functions_variables:
             if (functions_variables[key]):
-                text.insert(INSERT,"\n-> Function " + key + ":",["white"])
+                text.insert(INSERT,"\n-> Function " + key + ":")
                 for variable in functions_variables.get(key):
                     text.insert(INSERT,"\n")
                     x = ""
@@ -258,14 +257,14 @@ def printResultsToGUI (text):
                         text.insert(INSERT,bad,["red","bold"])
                     else:
                         text.insert(INSERT,good,["green","bold"])
-                    text.insert(INSERT," " + variable[0] + ' ' + variable[1] ,["white"])
+                    text.insert(INSERT," " + variable[0] + ' ' + variable[1] )
     return text
 
 def printToGUI(text,path):
     files = readFilesFromPath(path)
     nfiles = len(files)
     nTested = 0
-    text.insert(INSERT,'\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------\n',["white","center","bold"])
+    text.insert(INSERT,'\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------\n',["center","bold"])
     while nTested<nfiles :
         text.insert(INSERT,"\n-------> ",["center","normal","blue"])
         text.insert(INSERT,files[nTested],["center","underline","blue"])
@@ -276,7 +275,6 @@ def printToGUI(text,path):
         nTested+=1
     return text
  
-
 if __name__ == '__main__':
     files = readFilesFromPath(sys.argv[1])
     nfiles = len(files)
@@ -288,8 +286,6 @@ if __name__ == '__main__':
         printResults()
         cleanData()
         nTested+=1
-
-
 
 # To use this script use :
 #  on Linux:

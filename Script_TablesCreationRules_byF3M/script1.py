@@ -171,45 +171,45 @@ def testFileGUI(file,text):
 
     if (step == 0):
         text.insert(INSERT,'\nError: ',["red","bold"])
-        text.insert(INSERT,'No table name defined in the file processed!',["white"])
+        text.insert(INSERT,'No table name defined in the file processed!')
     else:
-        text.insert(INSERT,'\n---> TABLE NAME RULES:\n',["white","bold"])
+        text.insert(INSERT,'\n---> TABLE NAME RULES:\n',["bold"])
         if (tableName_rule):
             text.insert(INSERT,good,["green","bold"])
-            text.insert(INSERT," " + table + ' matches the rule!',"white")
+            text.insert(INSERT," " + table + ' matches the rule!')
         else:
             text.insert(INSERT,bad,["red","bold"])
-            text.insert(INSERT," " + table + 'doesn\'t match the rule!',"white")
+            text.insert(INSERT," " + table + 'doesn\'t match the rule!')
         
-        text.insert(INSERT,'\n\n---> REQUIRED FIELDS:',["white","bold"])
+        text.insert(INSERT,'\n\n---> REQUIRED FIELDS:',["bold"])
         for field in required_fields:
             text.insert(INSERT,"\n")
             if (required_fields[field] == 1):
                 text.insert(INSERT,good,["green","bold"])
-                text.insert(INSERT,' ' + field,"white")  
+                text.insert(INSERT,' ' + field)  
             else:
                 text.insert(INSERT,bad,["red","bold"])
-                text.insert(INSERT,' ' + field,"white")
+                text.insert(INSERT,' ' + field)
 
-        text.insert(INSERT,'\n\n---> FOREIGN KEYS RULE:\n',["white","bold"])
+        text.insert(INSERT,'\n\n---> FOREIGN KEYS RULE:\n',["bold"])
         if (foreignKeys_wrong == []):
             text.insert(INSERT,good,["green","bold"])
-            text.insert(INSERT,' All the '+ str(fk_n)+ ' foreign keys are well defined!',"white")  
+            text.insert(INSERT,' All the '+ str(fk_n)+ ' foreign keys are well defined!')  
         else:
             text.insert(INSERT,bad,["red","bold"])
-            text.insert(INSERT,' The following ' + str(len(foreignKeys_wrong)) + ' foreign keys didn\'t match the rule!\n',"white") 
-            text.insert(INSERT,'\n'.join(foreignKeys_wrong) ,"white")
+            text.insert(INSERT,' The following ' + str(len(foreignKeys_wrong)) + ' foreign keys didn\'t match the rule!\n') 
+            text.insert(INSERT,'\n'.join(foreignKeys_wrong) )
 
-
-        text.insert(INSERT,'\n\n---> PROPERTIES SIZE:\n',["white","bold"])
+        text.insert(INSERT,'\n\n---> PROPERTIES SIZE:\n',["bold"])
         if (properties_wrong == []):
             text.insert(INSERT,good,["green","bold"])
-            text.insert(INSERT, ' All the ' + str(prop_n) + ' properties have a proper size! (<= 20 char\'s)\n',"white")
+            text.insert(INSERT, ' All the ' + str(prop_n) + ' properties have a proper size! (<= 20 char\'s)\n')
         else:
             text.insert(INSERT,bad,["red","bold"])
-            text.insert(INSERT,' The following ' + str(len(properties_wrong)) + ' properties didn\'t match the rule! (<= 20 char\'s)\n' , "white")
-            text.insert(INSERT,'\n'.join(properties_wrong) ,"white")
+            text.insert(INSERT,' The following ' + str(len(properties_wrong)) + ' properties didn\'t match the rule! (<= 20 char\'s)\n')
+            text.insert(INSERT,'\n'.join(properties_wrong))
     return text
+
 def cleanData():
     global step
     global tableName_rule
@@ -226,7 +226,6 @@ def cleanData():
     properties_wrong = []
     for field in required_fields:
         required_fields[field]=0
-
 
 if __name__ == '__main__':
     files = readFilesFromPath(sys.argv[1])
@@ -246,7 +245,7 @@ def printToGUI(text,path):
     nfiles = len(files)
     nTested = 0
 
-    text.insert(INSERT,'\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------\n',["white","center","bold"])
+    text.insert(INSERT,'\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------\n',["center","bold"])
     while (nTested < nfiles):
         text.insert(INSERT,"\n-------> ",["center","normal","blue"])
         text.insert(INSERT,files[nTested],["center","underline","blue"])

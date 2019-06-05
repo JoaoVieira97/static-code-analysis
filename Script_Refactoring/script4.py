@@ -183,55 +183,55 @@ def printResultsGUI(text):
     bad =  u'\u274C'
 
     # number of classes
-    text.insert(INSERT,'\n---> CLASSES IMPLEMENTED:\n',["white","bold"])
+    text.insert(INSERT,'\n---> CLASSES IMPLEMENTED:\n',["bold"])
     if (len(classes.keys()) == 1):
         text.insert(INSERT,good,["green","bold"])
-        text.insert(INSERT,' Apenas uma classe implementada no ficheiro:',["white"])
+        text.insert(INSERT,' Apenas uma classe implementada no ficheiro:')
     else:
         text.insert(INSERT,bad,["red","bold"])
-        text.insert(INSERT,' Mais do que uma classe implementada no ficheiro:',["white"])
+        text.insert(INSERT,' Mais do que uma classe implementada no ficheiro:')
     for cl in classes.keys():
-        text.insert(INSERT,'\n'+cl,["white"])
+        text.insert(INSERT,'\n'+cl)
 
     # number of methods
-    text.insert(INSERT,'\n---> NUMBER OF METHODS IN CLASS: (<= ' + str(methods_in_class)  + ')\n' ,["white","bold"] )
+    text.insert(INSERT,'\n\n---> NUMBER OF METHODS IN CLASS: (<= ' + str(methods_in_class)  + ')\n' ,["bold"] )
     for cl in classes.keys():
         if (len(classes[cl]) <= methods_in_class):
             text.insert(INSERT,good,["green","bold"])
-            text.insert(INSERT,' '+cl+ ' (' + str(len(classes[cl])) + ')\n',["white"])
+            text.insert(INSERT,' '+cl+ ' (' + str(len(classes[cl])) + ')\n')
         else:
             text.insert(INSERT,bad,["red","bold"])
-            text.insert(INSERT,' '+cl+ ' (' + str(len(classes[cl])) + ')\n' ,["white"])
+            text.insert(INSERT,' '+cl+ ' (' + str(len(classes[cl])) + ')\n' )
 
     # method number of lines
-    text.insert(INSERT, '\n---> NUMBER OF LINES OF METHODS: (<= ' + str(lines_in_method)  + ')\n' ,["white","bold"] )
+    text.insert(INSERT, '\n---> NUMBER OF LINES OF METHODS: (<= ' + str(lines_in_method)  + ')\n' ,["bold"] )
     for method in methods.keys():
         if (methods[method] <= lines_in_method):
             text.insert(INSERT,good,["green","bold"])
-            text.insert(INSERT,' '+ method[1] + ' - ' + method[0] + ' (' + str(methods[method]) + ')\n',["white"])        
+            text.insert(INSERT,' '+ method[1] + ' - ' + method[0] + ' (' + str(methods[method]) + ')\n')        
         else:
             text.insert(INSERT,bad,["red","bold"])
-            text.insert(INSERT,' '+ method[1] + ' - ' + method[0] + ' (' + str(methods[method]) + ')\n' ,["white"])
+            text.insert(INSERT,' '+ method[1] + ' - ' + method[0] + ' (' + str(methods[method]) + ')\n' )
 
 
     # method number of parameters
-    text.insert(INSERT, '\n---> NUMBER OF PARAMETERS OF METHODS: (<= ' + str(params_in_method)  + ')\n' ,["white","bold"] )
+    text.insert(INSERT, '\n---> NUMBER OF PARAMETERS OF METHODS: (<= ' + str(params_in_method)  + ')\n' ,["bold"] )
     for method in input_results.keys():
         if (len(input_results[method]) <= params_in_method):
             text.insert(INSERT,good,["green","bold"])
-            text.insert(INSERT,' '+ method[1] + ' - ' + method[0] + ' (' + str(len(input_results[method])) + ')\n',["white"])   
+            text.insert(INSERT,' '+ method[1] + ' - ' + method[0] + ' (' + str(len(input_results[method])) + ')\n')   
         else:
             text.insert(INSERT,bad,["red","bold"])
-            text.insert(INSERT,' ' + method[1] + ' - ' + method[0] + ' (' + str(len(input_results[method])) + ')\n' ,["white"])
+            text.insert(INSERT,' ' + method[1] + ' - ' + method[0] + ' (' + str(len(input_results[method])) + ')\n' )
     # percentage of comments
-    text.insert(INSERT, '\n---> PERCENTAGE OF COMMENTS OF METHODS: (<= ' + str(comments_in_method*100) + "%"  + ')\n' ,["white","bold"] )
+    text.insert(INSERT, '\n---> PERCENTAGE OF COMMENTS OF METHODS: (<= ' + str(comments_in_method*100) + "%"  + ')\n' ,["bold"] )
     for method in comments.keys():
         if (comments[method] <= comments_in_method):
             text.insert(INSERT,good,["green","bold"])
-            text.insert(INSERT,' ' + method[1] + ' - ' + method[0] + ' (' + str(comments[method]*100) + '%)\n',["white"])   
+            text.insert(INSERT,' ' + method[1] + ' - ' + method[0] + ' (' + str(comments[method]*100) + '%)\n')   
         else:
             text.insert(INSERT,bad,["red","bold"])
-            text.insert(INSERT,' '+ method[1] + ' - ' + method[0] + ' (' + str(comments[method]*100) + '%)\n' ,["white"])
+            text.insert(INSERT,' '+ method[1] + ' - ' + method[0] + ' (' + str(comments[method]*100) + '%)\n' )
     return text
 
 
@@ -252,7 +252,7 @@ def printToGUI (text,path) :
     files = readFilesFromPath(path)
     nfiles = len(files)
     nTested = 0
-    text.insert(INSERT,'\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------\n',["white","center","bold"])
+    text.insert(INSERT,'\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------\n',["center","bold"])
     while nTested<nfiles :
         text.insert(INSERT,"\n-------> ",["center","normal","blue"])
         text.insert(INSERT,files[nTested],["center","underline","blue"])
