@@ -23,7 +23,6 @@ text_normal = "11"
 text_lower = "9"
 # -------------------
 
-
 root = Tk()
 root.title("Static code analysis")
 

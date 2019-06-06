@@ -29,6 +29,18 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
         }
 
         // GET api/utentes/
+        /// <summary>
+        /// Descrição da funcionalidade do método.
+        /// </summary>
+        /// <param name="Param1">Descrição do parâmetro 1</param>
+        /// <returns>
+        /// Descrição do valor a "devolver".
+        /// </returns>
+        /// <example>
+        /// <code>
+        /// Exemplo de utilização do método.
+        /// </code>
+        /// </example>
         [HttpGet]
         public async Task<List<object>> Get()
         {
@@ -50,7 +62,7 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
         /// </code>
         /// </example>
         [HttpGet("{id}")]
-        public async Task<List<object>> Get(long id)
+        public async Task<List<object>> Get(long id, Task<List<object>> ya)
         {
             return await _UtentesRepository.Get(_UtentesRepository, _EntidadesRegistadasRepository, _EntidadesRepository, id);
         }
@@ -70,22 +82,22 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
+        public void Put(int id, [FromBody] string value){
 
-          " { axx{xx {xxx "    ' { asdsa'  "{das" '{dasd'
+          Console.WriteLine(" { axx{xx {xxx "    ' { asdsa'  "{das" '{dasd'
  " } xx}asxxdasd }x "    ' } asdsa'  "}das" '}dasd'
-  " { adxxasd{asxdasd {d}axsd "    ' { asdsa'  "{da}s" '{dasd}'{}
+  " { adxxasd{asxdasd {d}axsd "    ' { asdsa'  "{da}s" '{dasd}'){}
     
-             public string strNome = 0;
-             public bool blnDisponivel = 0;
-             public DateTime dtFinal = 0;
-             private long lnngNIF = 0;
+            string strNome = 0; string str2 = 0;
+            bool blnDisponivel = 0;
+            DateTime dtFinal = 0;
+            long lngNIF = 0;
         '}'
-             private List<int> lstNumeros = 0;
-        
-        
-            
+            List<int> lstNumeros = 0;
+            int intclientes = 0;
+            string ya = "adsdad";
+            bool true = true;
+            Dictionary<int,Cliente> dict; int[] array;
         }
 
         // DELETE api/values/5

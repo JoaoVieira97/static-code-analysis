@@ -29,7 +29,7 @@ in_function = 0
 functions_documentation = {}
 input_results = {}
 functions_variables = {}
-documentation = ""
+documentation = ''
 d_params = []
 d_ok = False
 d_params_wrong = {}
@@ -75,12 +75,12 @@ def testFile(path, file):
             functions_variables[func] = []
 
             # Input names must begin by "in"
-            params_search = re.search(r'\(.+\)', func)
+            params_search = re.search(r'\(\s*.+\s*\)', func)
             if (params_search):
                 params = params_search.group().split(',')
                 i = 0
 
-                while(i < len(params)) :
+                while(i < len(params)):
                     params[i] = params[i].replace(r'(','').replace(r')','')
                     split_by_space = re.split(r'\s+', params[i])
                     input_to_test = split_by_space[-1]
@@ -89,29 +89,31 @@ def testFile(path, file):
                     if not tested :
                         input_results[func].append(input_to_test)
                     i+=1
+            else:
+                params = []
 
-                if (documentation != ""):
-                    # has documentation
-                    if (not d_ok):
-                        # documentation is not ok
-                        functions_documentation[func] = -1
-                    else:
-                        # test parameters
-                        equals = np.array_equal(params, d_params)
-                        if (equals):
-                            # params are ok
-                            functions_documentation[func] = 1
-                        else:
-                            # params are wrong
-                            functions_documentation[func] = 0
-                            d_params_wrong[func] = (params, d_params)
-
+            if (documentation):
+                # has documentation
+                if (not d_ok):
+                    # documentation is not ok
+                    functions_documentation[func] = -1
                 else:
-                    # no documentation
-                    functions_documentation[func] = -2
+                    # test parameters
+                    equals = np.array_equal(params, d_params)
+                    if (equals):
+                        # params are ok
+                        functions_documentation[func] = 1
+                    else:
+                        # params are wrong
+                        functions_documentation[func] = 0
+                        d_params_wrong[func] = (params, d_params)
+
+            else:
+                # no documentation
+                functions_documentation[func] = -2
     
-                documentation = ""
-                d_params = []
+            documentation = ""
+            d_params = []
 
         # detect it is inside function
         elif in_function == 1:
@@ -120,20 +122,22 @@ def testFile(path, file):
                 in_function = 0
             
             #Testing variables names
-
-            variable_test = re.search(r'([A-Za-z0-9\[\]\_\<\>,?]+)\s+([A-Za-z0-9\_.]+)\s*=[^;]+\s*;', line)
+            variable_test = re.findall(r'([A-Za-z0-9\[\]\_\<\>,?]+)\s+([A-Za-z0-9\_.]+)\s*(?:=[^;]+\s*)?;', line)
             if (variable_test):
-
-                type = variable_test.groups()[0]
-                name = variable_test.groups()[1]
-                split_text = [type, name]
-                for variable in variables:
-                    if re.match(variable, type):
-                        if re.match(variables[variable], name):
-                            split_text.append(1)
-                        else:
-                            split_text.append(0)
-                functions_variables[func].append(split_text)
+                for var in variable_test:
+                    type = var[0]
+                    name = var[1]
+                    split_text = [type, name]
+                    match = False
+                    for variable in variables:
+                        if re.match(variable, type):
+                            match = True
+                            if re.match(variables[variable], name):
+                                split_text.append(1)
+                            else:
+                                split_text.append(0)
+                    if (match):
+                        functions_variables[func].append(split_text)
 
         # Comments testing        
         elif is_comment:
@@ -207,7 +211,6 @@ def printResults ():
                     else:
                         x = '\033[92m\033[1m' + u'\u2714' + '\033[0m ' + ' '
                     print(x + variable[0] + ' ' + variable[1] )
-
 
 def printResultsToGUI (text):
     flag = 0
