@@ -52,7 +52,7 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<List<object>> Get(long id)
         {
-            // Sim claro
+            // This is a comment
             return await _UtentesRepository.Get(_UtentesRepository, _EntidadesRegistadasRepository, _EntidadesRepository, id);
         }
 
@@ -65,15 +65,8 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody] string invalue)
-        {
+        public void Post([FromBody] string invalue) {
             /* teste1 */
-            /*
-            teste
-            teste
-             */
-            int x = 0;
-            //teste3 - - - - -
         }
 
         // PUT api/values/5
@@ -110,14 +103,14 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
         }
     }
 
-    public class UtentesController2 : ControllerBase
+    public class Utentes_Controller_2 : ControllerBase
     {
         readonly IUtentesRepository _UtentesRepository;
         readonly IEntidadesRegistadasRepository _EntidadesRegistadasRepository;
         readonly IEntidadesRepository _EntidadesRepository;
         readonly IRADCabecalhoRepository _IRADCabecalhoRepository;
 
-        public UtentesController(IUtentesRepository UtentesRepository, IEntidadesRegistadasRepository EntidadesRegistadasRepository, IEntidadesRepository EntidadesRepository, IRADCabecalhoRepository IRADCabecalhoRepository)
+        public Utentes_Controller_2(IUtentesRepository UtentesRepository, IEntidadesRegistadasRepository EntidadesRegistadasRepository, IEntidadesRepository EntidadesRepository, IRADCabecalhoRepository IRADCabecalhoRepository)
         {
             _UtentesRepository = UtentesRepository;
             _EntidadesRegistadasRepository = EntidadesRegistadasRepository;
@@ -129,73 +122,8 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
         [HttpGet]
         public async Task<List<object>> Get()
         {
+            // return value
             return await _UtentesRepository.Get(_UtentesRepository, _EntidadesRegistadasRepository, _EntidadesRepository);
-        }
-
-        // GET api/utentes/5
-        /// <summary>
-        /// Descrição da funcionalidade do método.
-        /// </summary>
-        /// <param name="Param1">Descrição do parâmetro 1</param>
-        /// <param name="Param2">Descrição do parâmetro 2</param>
-        /// <returns>
-        /// Descrição do valor a "devolver".
-        /// </returns>
-        /// <example>
-        /// <code>
-        /// Exemplo de utilização do método.
-        /// </code>
-        /// </example>
-        [HttpGet("{id}")]
-        public async Task<List<object>> Get(long id)
-        {
-            return await _UtentesRepository.Get(_UtentesRepository, _EntidadesRegistadasRepository, _EntidadesRepository, id);
-        }
-
-        // GET api/utentes/quarto/5
-        [HttpGet("quarto/{id}")]
-        public async Task<List<object>> GetByQuarto(int inid)
-        {
-            return await _UtentesRepository.GetByQuarto(_UtentesRepository, _EntidadesRegistadasRepository, _EntidadesRepository, _IRADCabecalhoRepository, id);
-        }
-
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string invalue)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-
-          " { axx{xx {xxx "    ' { asdsa'  "{das" '{dasd'
- " } xx}asxxdasd }x "    ' } asdsa'  "}das" '}dasd'
-  " { adxxasd{asxdasd {d}axsd "    ' { asdsa'  "{da}s" '{dasd}'{}
-    
-             public string strNome = 0;
-             public bool blnDisponivel = 0;
-             public DateTime dtFinal = 0;
-             private long lnngNIF = 0;
-        '}'
-             private List<int> lstNumeros = 0;
-        
-        
-            
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int inid)
-        {
-            public Dictionary<int,Cliente> dicclientes = 0;
-            private int intname = 0 ;
-
-            private int[] arrnames = 0 ;
-            private       int     nameNoint = 0 ;
-
-            bool verdadeiro = true;
         }
     }
 }

@@ -13,6 +13,7 @@ namespace F3M.UMinho.Esocial.Units.Data.F3MESR3S1Repositories
         public UtentesValenciasRepository(F3MESR3S1Context context) : base(context)
         {
         }
+
         public async Task<List<object>> Got(long id)
         {
             return await _UtentesRepository.Get(_UtentesRepository, _EntidadesRegistadasRepository, _EntidadesRepository, id);
