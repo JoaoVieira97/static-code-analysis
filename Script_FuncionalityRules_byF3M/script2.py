@@ -25,14 +25,15 @@ controllersMissing = 0
 def readTables(file_path):
     global tables
     for line in fileinput.input(files=file_path):
-        if ("public" in line and "virtual" in line and "DbSet" in line and "get" in line and "set" in line):
-            splitLine = re.split(r'\s+', line)
-            tables.append(splitLine[4])
+      table = re.match(r'\s*public\s+virtual\s+DbSet\<[A-Za-z0-9\_]+\>\s+([A-Za-z0-9\_]+)\s*\{\s*get\s*\;\s*set\s*;\s*\}', line)
+      if (table):
+        tables.append(table.groups()[0])     
 
 def readFilesFromPath(path):
   files = []
   files = (os.listdir(path))
-  return files
+  cs_files = [f for f in files if re.match(r'.+\.cs$', f)]
+  return cs_files
 
 def readAll(file_path, models_path, reps_path, controllers_path):
   global tables
@@ -59,10 +60,10 @@ def testDirectory(i):
 
   for t in tables:
     exist = False
+    if (i == 1): t_withcs = t[2:] + ".cs" # TbClient = Client.cs to compare with model
+    elif (i == 2): t_withcs = "Repositorio" + t[2:] + ".cs" # TbClient = RepositorioClient.cs to compare with Repository
+    else: t_withcs = t[2:] + "Controller.cs" # TbClient = ClientController.cs to compare with Controller
     for a in aux:
-      if (i == 1): t_withcs = t[2:] + ".cs" # TbClient = Client.cs to compare with model
-      elif (i == 2): t_withcs = "Repositorio" + t[2:] + ".cs" # TbClient = RepositorioClient.cs to compare with Repository
-      else: t_withcs = t[2:] + "Controller.cs" # TbClient = ClientController.cs to compare with Controller
       if (t_withcs == a):
         missing -= 1
         exist = True
@@ -82,7 +83,7 @@ def testAll():
   repsMissing = testDirectory(2)
   controllersMissing = testDirectory(3)
 
-def printResults():
+def printResults(mode):
   global tables
   global models
   global reps
@@ -111,18 +112,24 @@ def printResults():
     print(good + "Missing " + str(modelsMissing) + " from " + str(len(tables)) + " models according to tables!")
   else:
     print(bad + "Missing " + str(modelsMissing) + " from " + str(len(tables)) + " models according to tables!")
+    if (mode):
+      print('\n'.join(models_m))
 
   if (repsMissing == 0):
     print(good + "Missing " + str(repsMissing) + " from " + str(len(tables)) + " repositorys according to tables!")
   else:
     print(bad + "Missing " + str(repsMissing) + " from " + str(len(tables)) + " repositorys according to tables!")
+    if (mode):
+      print('\n'.join(reps_m))
   
   if (controllersMissing == 0):
     print(good + "Missing " + str(controllersMissing) + " from " + str(len(tables)) + " controllers according to tables!")
   else:
     print(bad + "Missing " + str(controllersMissing) + " from " + str(len(tables)) + " controllers according to tables!")
+    if (mode):
+      print('\n'.join(controllers_m))
 
-def printResultsToGUI(text):
+def printResultsToGUI(text, mode):
   global tables
   global models
   global reps
@@ -153,6 +160,8 @@ def printResultsToGUI(text):
   else:
     text.insert(INSERT, bad, ["red","bold"])
     text.insert(INSERT, " Missing " + str(modelsMissing) + " from " + str(len(tables)) + " models according to tables!\n")
+    if (mode):
+      text.insert(INSERT, '\n'.join(models_m) + '\n')
 
   if (repsMissing == 0):
     text.insert(INSERT, good, ["green","bold"])
@@ -160,6 +169,8 @@ def printResultsToGUI(text):
   else:
     text.insert(INSERT, bad, ["red","bold"])
     text.insert(INSERT, " Missing " + str(repsMissing) + " from " + str(len(tables)) + " repositorys according to tables!\n")
+    if (mode):
+      text.insert(INSERT, '\n'.join(reps_m) + '\n')
   
   if (controllersMissing == 0):
     text.insert(INSERT, good, ["green","bold"])
@@ -167,27 +178,58 @@ def printResultsToGUI(text):
   else:
     text.insert(INSERT, bad, ["red","bold"])
     text.insert(INSERT, " Missing " + str(controllersMissing) + " from " + str(len(tables)) + " controllers according to tables!\n")
+    if (mode):
+      text.insert(INSERT, '\n'.join(controllers_m) + '\n')
   
   return text
 
 if __name__ == '__main__':
   readAll(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
   testAll()
-  printResults()
+  if (len(sys.argv) == 6 and sys.argv[5] == "-p"):
+    printResults(1)
+  else:
+    printResults(0)
 
-def printToGUI (text, file_path, models_path, reps_path, controllers_path):
+def cleanData():
+  global tables
+  global models
+  global reps
+  global controllers
+  global models_m
+  global reps_m
+  global controllers_m
+  global modelsMissing
+  global repsMissing
+  global controllersMissing
+  tables = []
+  models = []
+  reps = []
+  controllers = []
+  models_m = []
+  reps_m = []
+  controllers_m = []
+  modelsMissing = 0
+  repsMissing = 0
+  controllersMissing = 0
+
+def printToGUI (text, file_path, models_path, reps_path, controllers_path, mode):
+  cleanData()
   readAll(file_path, models_path, reps_path, controllers_path)
   testAll()
-  text = printResultsToGUI(text)
+  if (mode):
+    text = printResultsToGUI(text, 1)
+  else:
+    text = printResultsToGUI(text, 0)
   return text
 
 # To use this script use :
 #  on Linux:
 #   $ chmod +x script2.py
-#   $ ./script2.py TablesContextFile ModelsPath RepositorysPath ControllersPath
+#   $ ./script2.py TablesContextFile ModelsPath RepositorysPath ControllersPath [-p]
 #      example:
 #      $ ./script2.py F3MESR3S1Context.cs Models Reps Controllers
 #  on Windows:
-#   $ python ./script2.py TablesContextFile ModelsPath RepositorysPath ControllersPath
+#   $ python ./script2.py TablesContextFile ModelsPath RepositorysPath ControllersPath [-p]
 #      example:
 #      $ python ./script2.py F3MESR3S1Context.cs Models Reps Controllers

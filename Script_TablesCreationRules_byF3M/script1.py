@@ -33,7 +33,8 @@ properties_wrong = []
 def readFilesFromPath(path):
   files = []
   files = (os.listdir(path))
-  return files
+  cs_files = [f for f in files if re.match(r'.+\.cs$', f)]
+  return cs_files
 
 def testFile(file):
     global step
@@ -43,6 +44,8 @@ def testFile(file):
     global prop_n 
     global properties_wrong
     global required_fields
+    global properties_max_length
+
     for line in fileinput.input(file):
         
         if (step == 0): # find table name
@@ -112,9 +115,9 @@ def testFile(file):
 
         print('\033[1m' + '\n---> PROPERTIES SIZE:' + '\033[0m')
         if (properties_wrong == []):
-            print('\033[92m\033[1m' + u'\u2714' + '\033[0m ' + ' All the ' + '\033[1m' + str(prop_n) + '\033[0m' + ' properties have a proper size! (<= 20 char\'s)')
+            print('\033[92m\033[1m' + u'\u2714' + '\033[0m ' + ' All the ' + '\033[1m' + str(prop_n) + '\033[0m' + ' properties have a proper size! (<= ' + str(properties_max_length) + ' char\'s)')
         else:
-            print('\033[91m\033[1m' + u'\u274C' + '\033[0m ' + ' The following ' + '\033[1m' + str(len(properties_wrong)) + '\033[0m' + ' properties didn\'t match the rule! (<= 20 char\'s)')
+            print('\033[91m\033[1m' + u'\u274C' + '\033[0m ' + ' The following ' + '\033[1m' + str(len(properties_wrong)) + '\033[0m' + ' properties didn\'t match the rule! (<= ' + str(properties_max_length) + ' char\'s)')
             print('\n'.join(properties_wrong))
 
 
@@ -128,6 +131,8 @@ def testFileGUI(file,text):
     global prop_n 
     global properties_wrong
     global required_fields
+    global properties_max_length
+
     for line in fileinput.input(file):
         
         if (step == 0): # find table name
@@ -170,44 +175,44 @@ def testFileGUI(file,text):
                     properties_wrong.append(prop)
 
     if (step == 0):
-        text.insert(INSERT,'\nError: ',["red","bold"])
-        text.insert(INSERT,'No table name defined in the file processed!')
+        text.insert(INSERT, '\nError: ', ["red","bold"])
+        text.insert(INSERT, 'No table name defined in the file processed!')
     else:
-        text.insert(INSERT,'\n---> TABLE NAME RULES:\n',["bold"])
+        text.insert(INSERT, '\n---> TABLE NAME RULES:\n', ["bold"])
         if (tableName_rule):
-            text.insert(INSERT,good,["green","bold"])
-            text.insert(INSERT," " + table + ' matches the rule!')
+            text.insert(INSERT, good, ["green","bold"])
+            text.insert(INSERT, " " + table + ' matches the rule!')
         else:
-            text.insert(INSERT,bad,["red","bold"])
-            text.insert(INSERT," " + table + 'doesn\'t match the rule!')
+            text.insert(INSERT, bad, ["red","bold"])
+            text.insert(INSERT, " " + table + 'doesn\'t match the rule!')
         
-        text.insert(INSERT,'\n\n---> REQUIRED FIELDS:',["bold"])
+        text.insert(INSERT, '\n\n---> REQUIRED FIELDS:', ["bold"])
         for field in required_fields:
-            text.insert(INSERT,"\n")
+            text.insert(INSERT, "\n")
             if (required_fields[field] == 1):
-                text.insert(INSERT,good,["green","bold"])
-                text.insert(INSERT,' ' + field)  
+                text.insert(INSERT, good, ["green","bold"])
+                text.insert(INSERT, ' ' + field)  
             else:
-                text.insert(INSERT,bad,["red","bold"])
-                text.insert(INSERT,' ' + field)
+                text.insert(INSERT, bad, ["red","bold"])
+                text.insert(INSERT, ' ' + field)
 
-        text.insert(INSERT,'\n\n---> FOREIGN KEYS RULE:\n',["bold"])
+        text.insert(INSERT, '\n\n---> FOREIGN KEYS RULE:\n', ["bold"])
         if (foreignKeys_wrong == []):
-            text.insert(INSERT,good,["green","bold"])
-            text.insert(INSERT,' All the '+ str(fk_n)+ ' foreign keys are well defined!')  
+            text.insert(INSERT, good, ["green","bold"])
+            text.insert(INSERT, ' All the ' + str(fk_n) + ' foreign keys are well defined!')  
         else:
-            text.insert(INSERT,bad,["red","bold"])
-            text.insert(INSERT,' The following ' + str(len(foreignKeys_wrong)) + ' foreign keys didn\'t match the rule!\n') 
-            text.insert(INSERT,'\n'.join(foreignKeys_wrong) )
+            text.insert(INSERT, bad, ["red","bold"])
+            text.insert(INSERT, ' The following ' + str(len(foreignKeys_wrong)) + ' foreign keys didn\'t match the rule!\n') 
+            text.insert(INSERT, '\n'.join(foreignKeys_wrong) )
 
-        text.insert(INSERT,'\n\n---> PROPERTIES SIZE:\n',["bold"])
+        text.insert(INSERT, '\n\n---> PROPERTIES SIZE:\n', ["bold"])
         if (properties_wrong == []):
-            text.insert(INSERT,good,["green","bold"])
-            text.insert(INSERT, ' All the ' + str(prop_n) + ' properties have a proper size! (<= 20 char\'s)\n')
+            text.insert(INSERT, good, ["green","bold"])
+            text.insert(INSERT, ' All the ' + str(prop_n) + ' properties have a proper size! (<= ' + str(properties_max_length) + ' char\'s)\n')
         else:
             text.insert(INSERT,bad,["red","bold"])
-            text.insert(INSERT,' The following ' + str(len(properties_wrong)) + ' properties didn\'t match the rule! (<= 20 char\'s)\n')
-            text.insert(INSERT,'\n'.join(properties_wrong))
+            text.insert(INSERT, ' The following ' + str(len(properties_wrong)) + ' properties didn\'t match the rule! (<= ' + str(properties_max_length) + ' char\'s)\n')
+            text.insert(INSERT, '\n'.join(properties_wrong))
     return text
 
 def cleanData():
@@ -237,7 +242,7 @@ if __name__ == '__main__':
     while (nTested < nfiles):
         print('\033[34m' + '\033[1m' + '\n-------> ' + '\033[0m' + '\033[34m' + '\033[1m' + '\033[4m' + files[nTested] + '\033[0m' + '\033[34m' + '\033[1m' + ' <-------' + '\033[0m\n')
         cleanData()
-        testFile(sys.argv[1] + "/"+ files[nTested])
+        testFile(sys.argv[1] + "/" + files[nTested])
         nTested+=1
 
 def printToGUI(text,path):
@@ -251,7 +256,7 @@ def printToGUI(text,path):
         text.insert(INSERT,files[nTested],["center","underline","blue"])
         text.insert(INSERT," <-------\n",["center","normal","blue"])
         cleanData()
-        text = testFileGUI(path + "/"+ files[nTested],text)
+        text = testFileGUI(path + "/" + files[nTested],text)
         nTested+=1
     return text
 

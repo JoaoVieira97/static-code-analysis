@@ -26,7 +26,8 @@ comments = {} # method, class -> n_comments
 def readFilesFromPath(path):
   files = []
   files = os.listdir(path)
-  return files
+  cs_files = [f for f in files if re.match(r'.+\.cs$', f)]
+  return cs_files
 
 def CommentsCount (comments_count,line,comment):
     regexA =  re.search('\/\*.*\*\/',line)     # /* ... */

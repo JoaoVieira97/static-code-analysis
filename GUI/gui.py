@@ -43,6 +43,7 @@ def execute(script_number):
    global s2_controllers
    global s3_folder
    global s4_folder
+   global var_mode
    text.delete('1.0', END)
    if (script_number == 1):
       if (not s1_folder):
@@ -53,7 +54,7 @@ def execute(script_number):
       if (not s2_context or not s2_models or not s2_repos or not s2_controllers):
          text.insert(INSERT, 'Selecione o ficheiro e as pastas necessárias.', ["red","bold"])
          return
-      text = print2(text, s2_context, s2_models, s2_repos, s2_controllers)
+      text = print2(text, s2_context, s2_models, s2_repos, s2_controllers, var_mode.get())
    elif (script_number == 3):
       if (not s3_folder):
          text.insert(INSERT, 'Selecione a pasta necessária.', ["red","bold"])
@@ -189,6 +190,9 @@ s2_4.grid(sticky = W, column=0, row=7)
 
 s2_4f = Label(frame_2, text="não selecionado", font = ("Calibri", text_normal), fg="#cc0000")
 s2_4f.grid(sticky = W, column=0, row=8)
+
+var_mode = IntVar()
+Checkbutton(frame_2, text="Mostrar ficheiros em falta", variable=var_mode).grid(row=9, sticky=W)
 
 frame_2.grid(column=1, row=0, sticky="nsew", padx=10)
 

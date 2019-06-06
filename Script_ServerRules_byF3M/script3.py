@@ -37,7 +37,8 @@ d_params_wrong = {}
 def readFilesFromPath(path):
     files = []
     files = os.listdir(path)
-    return files
+    cs_files = [f for f in files if re.match(r'.+\.cs$', f)]
+    return cs_files
 
 def regex_keys(in_key, line):
     in_key += line.count('{')
