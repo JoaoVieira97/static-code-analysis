@@ -34,7 +34,7 @@ else:
    root.attributes('-zoomed', True)
 
 def print_path(path,isFolder):
-      max_size = 15
+      max_size = 11
       path_name = path.split('/')
       last_name = path_name[len(path_name)-1]
       path_name = ".../"
@@ -210,6 +210,10 @@ s2_4f.grid(sticky = W, column=1, row=4)
 
 var_mode = IntVar()
 Checkbutton(frame_2, text="Show missing files", variable=var_mode).grid(row=9, sticky=W)
+
+frame_2.grid_columnconfigure(0, weight=1, uniform="group")
+frame_2.grid_columnconfigure(1, weight=1, uniform="group")
+frame_2.grid_rowconfigure(0, weight=1)
 
 frame_2.grid(column=1, row=0, sticky="nsew", padx=10)
 
