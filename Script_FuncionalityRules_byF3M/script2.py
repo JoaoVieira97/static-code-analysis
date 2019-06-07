@@ -68,9 +68,9 @@ def testDirectory(i):
         missing -= 1
         exist = True
     if (exist == False):
-      if (i == 1): models_m.append(t)
-      elif (i == 2): reps_m.append(t)
-      else: controllers_m.append(t)
+      if (i == 1): models_m.append(t_withcs)
+      elif (i == 2): reps_m.append(t_withcs)
+      else: controllers_m.append(t_withcs)
   
   return missing
 

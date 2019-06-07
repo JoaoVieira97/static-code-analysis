@@ -15,7 +15,7 @@ init()
 methods_in_class = 5
 lines_in_method = 10
 params_in_method = 4
-comments_in_method = 0.1 #percentage?
+comments_in_method = 0.2 #percentage?
 
 # code data
 in_function = 0

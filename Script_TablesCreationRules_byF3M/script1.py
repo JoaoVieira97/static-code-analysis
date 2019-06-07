@@ -212,7 +212,7 @@ def testFileGUI(file,text):
         else:
             text.insert(INSERT,bad,["red","bold"])
             text.insert(INSERT, ' The following ' + str(len(properties_wrong)) + ' properties didn\'t match the rule! (<= ' + str(properties_max_length) + ' char\'s)\n')
-            text.insert(INSERT, '\n'.join(properties_wrong))
+            text.insert(INSERT, '\n'.join(properties_wrong) + '\n')
     return text
 
 def cleanData():

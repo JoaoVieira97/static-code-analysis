@@ -68,6 +68,19 @@ def testFile(path, file):
 
         # detect init of function
         if function_in_line:
+
+            if in_comment:
+                in_comment = 0
+                correct_documentation = re.match(r'<summary>[^<]+</summary>((?:<param name="[^\"]+">[^<]+</param>)*)<returns>[^<]+</returns><example><code>[^<]+</code></example>', documentation)
+                if (correct_documentation):
+                    # documentation ok
+                    d_ok = True
+                    params = correct_documentation.groups()[0]
+                    d_params = re.findall(r'<param name="([^\"]+)">[^<]+</param>', params)
+                else: 
+                    # documentation not ok
+                    d_ok = False
+
             in_function = 1
             in_key = regex_keys(in_key,line)
             func = re.sub(r'^\s*', r'', function_in_line.group())
@@ -159,15 +172,22 @@ def testFile(path, file):
                 d_ok = False
 
 def cleanData():
+    global in_comment
+    global in_function
+    global functions_documentation
+    global input_results
+    global functions_variables
+    global documentation
+    global d_para
     in_comment = 0
     in_function = 0
-    functions_documentation.clear()
-    input_results.clear()
-    functions_variables.clear()
-    d_params.clear()
-    d_params_wrong.clear()
-    documentation = ""
-    d_params.clear()
+    functions_documentation = {}
+    input_results = {}
+    functions_variables = {}
+    documentation = ''
+    d_params = []
+    d_ok = False
+    d_params_wrong = {}
 
 def printResults ():
     flag = 0
@@ -220,63 +240,64 @@ def printResultsToGUI (text):
     for key in input_results.keys():
         if (input_results[key]) :
             if (flag == 0):
-                text.insert(INSERT,'---> FUNCTIONS INPUT\'S:\n',["bold"])
+                text.insert(INSERT, '---> FUNCTIONS INPUT\'S:\n', ["bold"])
             flag += 1
-            text.insert(INSERT,"\n-> Function " + key + ":")
+            text.insert(INSERT, "\n-> Function " + key + ":")
             for inp in input_results[key]:
-                text.insert(INSERT,"\n")
-                text.insert(INSERT,bad,["red","bold"])
-                text.insert(INSERT,"  Missing 'in' in the input parameter ")
+                text.insert(INSERT, "\n")
+                text.insert(INSERT, bad, ["red","bold"])
+                text.insert(INSERT, "  Missing 'in' in the input parameter ")
                 text.insert(INSERT, inp, "yellow")
     
     if (functions_documentation):
-        text.insert(INSERT,'\n\n---> FUNCTIONS DOCUMENTATION:\n',["bold"])
+        text.insert(INSERT, '\n\n---> FUNCTIONS DOCUMENTATION:\n', ["bold"])
         
         for func in functions_documentation:
-            text.insert(INSERT,"\n")
+            text.insert(INSERT, "\n")
             if (functions_documentation[func] == -2):
-                text.insert(INSERT,bad,["red","bold"])
-                text.insert(INSERT," " + func + ': no documentation')
+                text.insert(INSERT, bad, ["red","bold"])
+                text.insert(INSERT, " " + func + ': no documentation')
             elif (functions_documentation[func] == -1):
-                text.insert(INSERT,bad,["red","bold"])
-                text.insert(INSERT, " "+ func + ': Documentation is not correct')
+                text.insert(INSERT, bad, ["red","bold"])
+                text.insert(INSERT, " " + func + ': Documentation is not correct')
             elif (functions_documentation[func] == 0):
-                text.insert(INSERT,bad,["red","bold"])
-                text.insert(INSERT," "+ func + ': Parameters of function are different from the documentation')
-                text.insert(INSERT,'\n\tFunction params = ' + str(d_params_wrong[func][0]))
-                text.insert(INSERT,'\n\tDocumentation params = ' + str(d_params_wrong[func][1]))
+                text.insert(INSERT, bad, ["red","bold"])
+                text.insert(INSERT, " "+ func + ': Parameters of function are different from the documentation')
+                text.insert(INSERT, '\n\tFunction params = ' + str(d_params_wrong[func][0]))
+                text.insert(INSERT, '\n\tDocumentation params = ' + str(d_params_wrong[func][1]))
             else:
-                text.insert(INSERT,good,["green","bold"])
+                text.insert(INSERT, good, ["green","bold"])
                 text.insert(INSERT, " " + func)    
     print_f = any(value for value in functions_variables.values())
     if (functions_variables and print_f):
-        text.insert(INSERT,'\n\n---> VARIABLES NAME RULE:\n',["bold"])
+        text.insert(INSERT, '\n\n---> VARIABLES NAME RULE:\n', ["bold"])
         for key in functions_variables:
             if (functions_variables[key]):
-                text.insert(INSERT,"\n-> Function " + key + ":")
+                text.insert(INSERT, "\n-> Function " + key + ":")
                 for variable in functions_variables.get(key):
-                    text.insert(INSERT,"\n")
+                    text.insert(INSERT, "\n")
                     x = ""
                     if (variable[2]==0):
-                        text.insert(INSERT,bad,["red","bold"])
+                        text.insert(INSERT, bad, ["red","bold"])
                     else:
-                        text.insert(INSERT,good,["green","bold"])
-                    text.insert(INSERT," " + variable[0] + ' ' + variable[1] )
+                        text.insert(INSERT, good, ["green","bold"])
+                    text.insert(INSERT, " " + variable[0] + ' ' + variable[1])
+        text.insert(INSERT, '\n')
     return text
 
 def printToGUI(text,path):
     files = readFilesFromPath(path)
     nfiles = len(files)
     nTested = 0
-    text.insert(INSERT,'\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------\n',["center","bold"])
-    while nTested<nfiles :
-        text.insert(INSERT,"\n-------> ",["center","normal","blue"])
-        text.insert(INSERT,files[nTested],["center","underline","blue"])
-        text.insert(INSERT," <-------\n",["center","normal","blue"])
-        testFile(path + "/"+ files[nTested],files[nTested])
+    text.insert(INSERT,'\n--------------------> ' + str(nfiles) + ' FILES TO TEST <--------------------\n', ["center","bold"])
+    while (nTested < nfiles):
+        text.insert(INSERT, "\n-------> ", ["center","normal","blue"])
+        text.insert(INSERT, files[nTested], ["center","underline","blue"])
+        text.insert(INSERT, " <-------\n\n", ["center","normal","blue"])
+        testFile(path + "/" + files[nTested], files[nTested])
         text = printResultsToGUI(text)
         cleanData()
-        nTested+=1
+        nTested += 1
     return text
  
 if __name__ == '__main__':
