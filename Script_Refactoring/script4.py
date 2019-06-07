@@ -7,8 +7,7 @@ import sys
 import re
 import os
 from colorama import init
-import numpy as np 
-from decimal import Decimal
+import numpy as np
 init()
 
 # defined data
@@ -144,9 +143,9 @@ def printResults():
     # number of classes
     print('\033[1m' + '\n---> CLASSES IMPLEMENTED:' + '\033[0m\n')
     if (len(classes.keys()) == 1):
-        print(good + 'Apenas uma classe implementada no ficheiro:')
+        print(good + 'Only one class implemented in the file:')
     else:
-        print(bad + 'Mais do que uma classe implementada no ficheiro:')
+        print(bad + 'More than one class implemented in the file:')
     for cl in classes.keys():
         print(cl)
 
@@ -189,10 +188,10 @@ def printResultsGUI(text):
     text.insert(INSERT, '\n---> CLASSES IMPLEMENTED:\n', ["bold"])
     if (len(classes.keys()) == 1):
         text.insert(INSERT, good, ["green","bold"])
-        text.insert(INSERT, ' Apenas uma classe implementada no ficheiro:')
+        text.insert(INSERT, ' Only one class implemented in the file:')
     else:
         text.insert(INSERT, bad, ["red","bold"])
-        text.insert(INSERT, ' Mais do que uma classe implementada no ficheiro:')
+        text.insert(INSERT, ' More than one class implemented in the file:')
     for cl in classes.keys():
         text.insert(INSERT, '\n' + cl)
 
