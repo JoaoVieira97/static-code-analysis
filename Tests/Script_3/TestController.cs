@@ -15,7 +15,7 @@ namespace F3M.UMinho.Esocial.Units.Data.F3MESR3S1Repositories
         }
         
         public async Task<List<object>> Get(long id) {
-            string strNome = 0; string str2 = 0;
+            string strNome = "sim"; string str2 = "nao";
             bool blnDisponivel = false;
             DateTime dtFinal;
             long lngNIF = 0;
