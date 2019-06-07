@@ -6,7 +6,7 @@ from os import system as cmd
 import sys
 sys.path.append('./../')
 from Script_TablesCreationRules_byF3M.script1 import printToGUI as print1
-from Script_FuncionalityRules_byF3M.script2 import printToGUI as print2
+from Script_FunctionalityRules_byF3M.script2 import printToGUI as print2
 from Script_ServerRules_byF3M.script3 import printToGUI as print3
 from Script_Refactoring.script4 import printToGUI as print4
 
@@ -32,6 +32,19 @@ if (os.name == 'nt'):
    text_lower = "7"
 else:
    root.attributes('-zoomed', True)
+
+def print_path(path,isFolder):
+      max_size = 15
+      path_name = path.split('/')
+      last_name = path_name[len(path_name)-1]
+      path_name = ".../"
+      if len(last_name)>max_size :
+         path_name += last_name[:max_size] + "..."
+      else :
+         path_name += last_name
+      if(isFolder):
+         path_name += "/"
+      return path_name
 
 def execute(script_number):
    global text
@@ -77,39 +90,44 @@ def browse(script_number):
    text.delete('1.0', END)
    if (script_number == 1 or script_number == 3 or script_number == 4):
       folder = filedialog.askdirectory(title='CHOOSE THE FOLDER')
+      folder_name = print_path(folder,True)
       if (folder):
          if (script_number == 1):
             s1_folder = folder
-            s1_1f["text"] = s1_folder
+            s1_1f["text"] = folder_name
             s1_1f["fg"] = "#008000"
          elif (script_number == 3):
             s3_folder = folder
-            s3_1f["text"] = s3_folder
+            s3_1f["text"] = folder_name
             s3_1f["fg"] = "#008000"
          else:
             s4_folder = folder
-            s4_1f["text"] = s4_folder
+            s4_1f["text"] = folder_name
             s4_1f["fg"] = "#008000"
    else:
       context = filedialog.askopenfilename(title='CHOOSE THE TABLES CONTEXT FILE')
+      context_name = print_path(context,False)
       if (context):
          s2_context = context
-         s2_1f["text"] = s2_context
+         s2_1f["text"] = context_name
          s2_1f["fg"] = "#008000"
       folder = filedialog.askdirectory(title='CHOOSE THE FOLDER THAT CONTAINS THE MODELS')
+      folder_name = print_path(folder,True)
       if (folder):
          s2_models = folder
-         s2_2f["text"] = s2_models
+         s2_2f["text"] = folder_name
          s2_2f["fg"] = "#008000"
       folder = filedialog.askdirectory(title='CHOOSE THE FOLDER THAT CONTAINS THE REPOSITORIES')
+      folder_name = print_path(folder,True)
       if (folder):
          s2_repos = folder
-         s2_3f["text"] = s2_repos
+         s2_3f["text"] = folder_name
          s2_3f["fg"] = "#008000"
       folder = filedialog.askdirectory(title='CHOOSE THE FOLDER THAT CONTAINS THE CONTROLLERS')
+      folder_name = print_path(folder,True)
       if (folder):
          s2_controllers = folder
-         s2_4f["text"] = s2_controllers
+         s2_4f["text"] = folder_name
          s2_4f["fg"] = "#008000"
 
 # ---------------------------------------------------------
@@ -173,22 +191,22 @@ s2_1f = Label(frame_2, text="not selected", font = ("Calibri", text_normal), fg=
 s2_1f.grid(sticky = W, column=0, row=2)
 
 s2_2 = Label(frame_2, text="* Models folder:", font = ("Calibri", text_normal, "bold"))
-s2_2.grid(sticky = W, column=0, row=3)
+s2_2.grid(sticky = W, column=1, row=1)
 
 s2_2f = Label(frame_2, text="not selected", font = ("Calibri", text_normal), fg="#cc0000")
-s2_2f.grid(sticky = W, column=0, row=4)
+s2_2f.grid(sticky = W, column=1, row=2)
 
 s2_3 = Label(frame_2, text="* Repositories folder:", font = ("Calibri", text_normal, "bold"))
-s2_3.grid(sticky = W, column=0, row=5)
+s2_3.grid(sticky = W, column=0, row=3)
 
 s2_3f = Label(frame_2, text="not selected", font = ("Calibri", text_normal), fg="#cc0000")
-s2_3f.grid(sticky = W, column=0, row=6)
+s2_3f.grid(sticky = W, column=0, row=4)
 
 s2_4 = Label(frame_2, text="* Controllers folder:", font = ("Calibri", text_normal, "bold"))
-s2_4.grid(sticky = W, column=0, row=7)
+s2_4.grid(sticky = W, column=1, row=3)
 
 s2_4f = Label(frame_2, text="not selected", font = ("Calibri", text_normal), fg="#cc0000")
-s2_4f.grid(sticky = W, column=0, row=8)
+s2_4f.grid(sticky = W, column=1, row=4)
 
 var_mode = IntVar()
 Checkbutton(frame_2, text="Show missing files", variable=var_mode).grid(row=9, sticky=W)
