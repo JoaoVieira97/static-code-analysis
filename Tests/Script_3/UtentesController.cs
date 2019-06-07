@@ -62,7 +62,7 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
         /// </code>
         /// </example>
         [HttpGet("{id}")]
-        public async Task<List<object>> Get(long id, Task<List<object>> ya)
+        public async Task<List<object>> Get(long id, Task<List<object>> task)
         {
             return await _UtentesRepository.Get(_UtentesRepository, _EntidadesRegistadasRepository, _EntidadesRepository, id);
         }
@@ -88,12 +88,12 @@ namespace F3M.UMinho.Esocial.Units.WebApi.Controllers
                               " } xx}asxxdasd }x " + ' } asdsa' + "}das" + '}dasd' +
                               " { adxxasd{asxdasd {d}axsd " + ' { asdsa' + "{da}s" '{dasd}');
     
-            string strNome = 0; string str2 = 0;
-            bool blnDisponivel = 0;
-            DateTime dtFinal = 0;
+            string strNome = "sim"; string str2 = "nao";
+            bool blnDisponivel = true;
+            DateTime dtFinal;
             long lngNIF = 0;
         '}'
-            List<int> lstNumeros = 0;
+            List<int> lstNumeros;
             int intclientes = 0;
             string ya = "adsdad";
             bool true = true;

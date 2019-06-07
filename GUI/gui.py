@@ -6,7 +6,7 @@ from os import system as cmd
 import sys
 sys.path.append('./../')
 from Script_TablesCreationRules_byF3M.script1 import printToGUI as print1
-from Script_FuncionalityRules_byF3M.script2 import printToGUI as print2
+from Script_FunctionalityRules_byF3M.script2 import printToGUI as print2
 from Script_ServerRules_byF3M.script3 import printToGUI as print3
 from Script_Refactoring.script4 import printToGUI as print4
 

@@ -14,7 +14,7 @@ init()
 methods_in_class = 5
 lines_in_method = 10
 params_in_method = 4
-comments_in_method = 0.2 #percentage?
+comments_in_method = 0.2 #percentage
 
 # code data
 in_function = 0
@@ -76,7 +76,7 @@ def testFile(path, file):
    comment = ""
    for line in fileinput.input(path):
 
-        class_in_line = re.match(r'\s*(?:public|private)\s+class+\s+(.+):', line)
+        class_in_line = re.match(r'\s*(?:public|private)\s+class+\s+([^:{\n]+)', line)
         function_in_line = re.match(r'\s*(public|private)\s+(async\s+)?(void|[A-Za-z][A-Za-z0-9\<\>\_?\[\]]*)\s+[A-Z][A-Za-z0-9\_]*\s*\(.*\)', line)
         
         # detect init of class
